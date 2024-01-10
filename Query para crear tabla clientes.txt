@@ -1,0 +1,20 @@
+CREATE TABLE clientes (
+	ID SERIAL PRIMARY KEY,
+	Nombre VARCHAR(255) NOT NULL,
+	Apellido VARCHAR(255) NOT NULL,
+	Email VARCHAR(255) NOT NULL,
+	RUT VARCHAR(20) NOT NULL,
+	Fono VARCHAR(20) NOT NULL
+	);
+
+INSERT INTO clientes (Nombre, Apellido, Email, RUT, Fono) VALUES
+    ('Juan', 'Pérez', 'juan.perez@gmail.com', '12.345.678-9', '+56987654321'),
+    ('Ana', 'González', 'ana.gonzalez@yahoo.com', '15.678.901-2', '+56991234567'),
+    ('Carlos', 'Ramírez', 'carlos.ramirez@outlook.com', '18.901.234-5', '+56998765432'),
+    ('Luisa', 'Martínez', 'luisa.martinez@hotmail.com', '19.234.567-8', '+56987654321'),
+    ('Felipe', 'Sánchez', 'felipe.sanchez@icloud.com', '19.567.890-1', '+56991234567'),
+    ('Camila', 'López', 'camila.lopez@protonmail.com', '19.890.123-4', '+56998765432'),
+    ('Martín', 'Gómez', 'martin.gomez@live.com', '20.234.567-8', '+56987654321'),
+    ('Valentina', 'Rodríguez', 'valentina.rodriguez@gmail.com', '20.567.890-1', '+56991234567'),
+    ('Pedro', 'Hernández', 'pedro.hernandez@yahoo.com', '20.890.123-4', '+56998765432'),
+    ('Mónica', 'Torres', 'monica.torres@hotmail.com', '20.123.456-7', '+56987654321');

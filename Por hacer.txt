@@ -1,0 +1,17 @@
+Por hacer:
+
+Que lista de clientes refleje bien si un cliente tiene cuenta de ahorro / corriente después de crear o eliminar cuentas (podría obtener los datos directamente de la BDD con un READ)
+
+Ver casos de borde y probar al 100% (eliminar cuentas que no existen, agregar cuentas en clientes que ya tienen, eliminar clientes que no existen, etc)
+
+Validar datos de entrada de la vista
+
+Login básico (crear tabla administradores con rut y contraseña)
+
+Interfaz en JavaFX
+
+Hacer la PPT y practicar presentación
+
+Si da el tiempo hacer un menu para usuarios con login, el cual permita ver datos de sus cuentas y realizar transacciones a otros usuarios
+
+Aplicaciones de POO y SOLID en el código

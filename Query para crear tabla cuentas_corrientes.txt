@@ -1,0 +1,13 @@
+CREATE TABLE cuentas_corrientes (
+    id SERIAL PRIMARY KEY,
+    cliente_id INTEGER REFERENCES clientes(id) NOT NULL,
+    saldo INTEGER,
+    sobregiro INTEGER
+);
+
+INSERT INTO cuentas_corrientes (cliente_id, saldo, sobregiro) VALUES
+    (6, 950000, 450000),
+    (7, 125000, 250000),
+    (8, 1360000, 350000),
+    (9, 550500, 300000),
+    (10, 750000, 500000);
