@@ -153,6 +153,27 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
+        btnActualizarCliente.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizarCliente();
+            }
+        });
+
+        btnEliminarCliente.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // eliminarCliente();
+            }
+        });
+
+        btnBuscarCliente.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                buscarCliente();
+            }
+        });
+
         btnVolver.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -241,7 +262,7 @@ public class InterfazBancoVirtual extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 350);
 
-        String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono"};
+        String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono", "¿Cuenta de ahorro?", "¿Cuenta corriente?"};
 
         // Tabla de clientes
 
@@ -263,10 +284,21 @@ public class InterfazBancoVirtual extends JFrame {
                 tableModel.addRow(cliente);
             }
 
+            // Botón de actualizado
+            JButton btnActualizar = new JButton("Actualizar");
+            btnActualizar.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Lógica para actualizar la lista de clientes
+                    actualizarListaClientes(tableModel);
+                }
+            });
+
             // Panel para el botón volver
             JPanel buttonPanel = new JPanel();
             JButton btnVolver = new JButton("Volver");
 
+            buttonPanel.add(btnActualizar);
             buttonPanel.add(btnVolver);
 
             // Agregar el panel de botones a la parte inferior de la ventana
@@ -282,6 +314,209 @@ public class InterfazBancoVirtual extends JFrame {
             setLocationRelativeTo(null); // Centrar en la pantalla
             setVisible(true);
         }
+    }
+
+    // Método para actualizar la lista de clientes
+    private void actualizarListaClientes(DefaultTableModel tableModel) {
+        // Lógica para obtener y actualizar la lista de clientes
+        Object[][] clientes = controladorClientes.obtenerDatosClientes();
+
+        // Limpiar la tabla
+        tableModel.setRowCount(0);
+
+        if (clientes.length == 0) {
+            JOptionPane.showMessageDialog(this, "No hay clientes en la base de datos", "Base de datos vacía", JOptionPane.ERROR_MESSAGE);
+            gestionClientes();
+        } else {
+            // Agregar los nuevos datos a la tabla
+            for (Object[] cliente : clientes) {
+                tableModel.addRow(cliente);
+            }
+        }
+    }
+
+    private void actualizarCliente() {
+        setTitle("Actualizar cliente (dejar campo vacío para mantenerlo igual)");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel actualizarClientePanel = new JPanel(new GridLayout(7, 2));
+
+        JLabel nombreLabel = new JLabel("Nombre:");
+        JTextField nombreField = new JTextField();
+
+        JLabel apellidoLabel = new JLabel("Apellido:");
+        JTextField apellidoField = new JTextField();
+
+        JLabel edadLabel = new JLabel("Edad:");
+        SpinnerModel edadModel = new SpinnerNumberModel(18, 1, 110, 1); // Rango de edad de 1 a 120, inicio en 18
+        JSpinner edadSpinner = new JSpinner(edadModel);
+
+        JLabel emailLabel = new JLabel("Email:");
+        JTextField emailField = new JTextField();
+
+        JLabel rutLabel = new JLabel("RUT:");
+        JTextField rutField = new JTextField();
+
+        JLabel fonoLabel = new JLabel("Teléfono:");
+        JTextField fonoField = new JTextField();
+
+        JButton btnActualizarCliente = new JButton("Actualizar cliente");
+        JButton btnVolver = new JButton("Volver");
+
+        actualizarClientePanel.add(nombreLabel);
+        actualizarClientePanel.add(nombreField);
+        actualizarClientePanel.add(apellidoLabel);
+        actualizarClientePanel.add(apellidoField);
+        actualizarClientePanel.add(edadLabel);
+        actualizarClientePanel.add(edadSpinner);
+        actualizarClientePanel.add(emailLabel);
+        actualizarClientePanel.add(emailField);
+        actualizarClientePanel.add(rutLabel);
+        actualizarClientePanel.add(rutField);
+        actualizarClientePanel.add(fonoLabel);
+        actualizarClientePanel.add(fonoField);
+        actualizarClientePanel.add(btnActualizarCliente);
+        actualizarClientePanel.add(btnVolver);
+
+        getContentPane().removeAll(); // Limpiar el contenido actual
+        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
+        getContentPane().add(actualizarClientePanel, BorderLayout.CENTER);
+
+        // Configurar el tamaño y hacer visible la ventana
+        setSize(500, 350);
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+
+        btnActualizarCliente.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(validarDatosIngresoCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
+                    /*if(controladorClientes.crearCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
+                        JOptionPane.showMessageDialog(actualizarClientePanel, "Datos del cliente actualizados con éxito", "Actualización exitosa", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(actualizarClientePanel, "No se pudieron actualizar los datos del cliente", "Actualización fallida", JOptionPane.ERROR_MESSAGE);
+                    }*/
+                }
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionClientes();
+            }
+        });
+    }
+
+    private void buscarCliente() {
+        setTitle("Buscar cliente por RUT");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
+
+        JLabel rutLabel = new JLabel("RUT:");
+        JTextField rutField = new JTextField();
+
+        JButton btnBuscar = new JButton("Buscar");
+        JButton btnVolver = new JButton("Volver");
+
+        buscarClientePanel.add(rutLabel);
+        buscarClientePanel.add(rutField);
+
+        buscarClientePanel.add(btnBuscar);
+        buscarClientePanel.add(btnVolver);
+
+        getContentPane().removeAll(); // Limpiar el contenido actual
+        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
+        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
+
+        // Configurar el tamaño y hacer visible la ventana
+        setSize(350, 250);
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+
+        btnBuscar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(validarRut(rutField.getText())){
+                    Object[] datos = controladorClientes.buscarCliente(rutField.getText());
+                    if(datos.length > 0){
+                        JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
+                        mostrarDatosCliente(datos);
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(buscarClientePanel, "Ingrese un RUT válido", "RUT inválido", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionClientes();
+            }
+        });
+    }
+
+    private void mostrarDatosCliente(Object[] datos) {
+        getContentPane().removeAll();
+        setTitle("Datos del cliente:");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(800, 350);
+
+        String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono", "¿Cuenta de ahorro?", "¿Cuenta corriente?"};
+
+        // Datos
+
+        DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
+
+        JTable table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
+
+        tableModel.addRow(datos);
+
+        // Botón de actualizado
+        JButton btnActualizar = new JButton("Actualizar");
+        btnActualizar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Lógica para actualizar la lista de clientes
+                mostrarDatosCliente(controladorClientes.buscarCliente((String) datos[5]));
+            }
+        });
+
+        // Panel para el botón volver
+        JPanel buttonPanel = new JPanel();
+        JButton btnVolver = new JButton("Volver");
+
+        buttonPanel.add(btnActualizar);
+        buttonPanel.add(btnVolver);
+
+        // Agregar el panel de botones a la parte inferior de la ventana
+        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
+        btnActualizar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mostrarDatosCliente(datos);
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionClientes();
+            }
+        });
+
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
     }
 
     // Retorna true si las credenciales son válidas, de lo contrario, false.

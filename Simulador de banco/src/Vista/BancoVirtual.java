@@ -185,7 +185,7 @@ public class BancoVirtual {
                 String email = capturarEmail();
                 String fono = capturarTelefono();
 
-                controladorClientes.actualizarCliente(rut, email, fono);
+                //controladorClientes.actualizarCliente(rut, email, fono);
 
                 // Opciones adicionales
                 System.out.println("\n1. Volver a gestión de clientes");

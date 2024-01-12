@@ -24,8 +24,10 @@ public class ControladorClientes {
     }
 
     public Object[][] obtenerDatosClientes() {
+        CuentaAhorroDAO ahorroDAO = new CuentaAhorroDAO();
+        CuentaCorrienteDAO corrienteDAO = new CuentaCorrienteDAO();
         List<Cliente> listaClientes = clienteDAO.obtenerTodosLosClientes();
-        Object[][] data = new Object[listaClientes.size()][7];
+        Object[][] data = new Object[listaClientes.size()][9];
 
         for (int i = 0; i < listaClientes.size(); i++) {
             Cliente cliente = listaClientes.get(i);
@@ -36,6 +38,18 @@ public class ControladorClientes {
             data[i][4] = cliente.getEmail();
             data[i][5] = cliente.getRut();
             data[i][6] = cliente.getFono();
+            if(ahorroDAO.tieneCuentaDeAhorro(cliente.getId())){
+                data[i][7] = "Sí";
+            }
+            else {
+                data[i][7] = "No";
+            }
+            if(corrienteDAO.tieneCuentaCorriente(cliente.getId())){
+                data[i][8] = "Sí";
+            }
+            else {
+                data[i][8] = "No";
+            }
         }
 
         return data;
@@ -97,19 +111,19 @@ public class ControladorClientes {
         }
     }
 
-    public void actualizarCliente(String rut, String email, String fono) {
+    /*public boolean actualizarCliente(String rut) {
         try {
-            Cliente cliente = encontrarClientePorRUT(rut);
-            /*
+            Cliente cliente = new Cliente(nombre, apellido, );
+            *//*
             cliente.setEmail(email);
             cliente.setFono(fono);
-            */
+            *//*
             clienteDAO.actualizarCliente(cliente, email, fono);
         } catch (SQLException e) {
             // Manejo de la excepción con mensaje de error
             System.err.println("No se pudieron actualizar los datos del cliente. Error: " + e.getMessage());
         }
-    }
+    }*/
 
     public void eliminarCliente(String rut) {
         try {
@@ -128,15 +142,35 @@ public class ControladorClientes {
         }
     }
 
-    public void buscarCliente(String rut) {
-        Cliente cliente = encontrarClientePorRUT(rut);
-        if (cliente != null){
-            System.out.println("Cliente encontrado en la base de datos");
-            System.out.println();
-            mostrarDetallesCliente(cliente);
+    public Object[] buscarCliente(String rut) {
+        Cliente cliente = clienteDAO.buscarCliente(rut);
+        CuentaAhorroDAO ahorroDAO = new CuentaAhorroDAO();
+        CuentaCorrienteDAO corrienteDAO = new CuentaCorrienteDAO();
+
+        String ahorro;
+        String corriente;
+
+        if (ahorroDAO.tieneCuentaDeAhorro(cliente.getId())) {
+            ahorro = "Sí";
         }
         else {
-            System.out.println("Cliente no encontrado en la base de datos");
+            ahorro = "No";
+        }
+
+        if (corrienteDAO.tieneCuentaCorriente(cliente.getId())) {
+            corriente = "Sí";
+        }
+        else {
+            corriente = "No";
+        }
+
+        if (cliente != null) {
+            Object[] datos = {cliente.getId(), cliente.getNombre(), cliente.getApellido(), cliente.getEdad(), cliente.getEmail(), cliente.getRut(), cliente.getFono(), ahorro, corriente};
+            return datos;
+        }
+        else {
+            Object[] datos = {};
+            return datos;
         }
     }
 

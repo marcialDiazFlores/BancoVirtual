@@ -44,6 +44,37 @@ public class ClienteDAO implements interfazClienteDAO
         return clientes;
     }
 
+    public Cliente buscarCliente(String rut) {
+        Cliente cliente = null;
+        try (Connection connection = conn.conectar()) {
+            String query = "SELECT * FROM clientes WHERE rut = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)){
+                preparedStatement.setString(1, rut);
+                 ResultSet resultSet = preparedStatement.executeQuery();
+
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String nombre = resultSet.getString("nombre");
+                    String apellido = resultSet.getString("apellido");
+                    int edad = resultSet.getInt("edad");
+                    String email = resultSet.getString("email");
+                    String RUT = resultSet.getString("rut");
+                    String fono = resultSet.getString("fono");
+
+                    // Crea un objeto Cliente con los datos obtenidos de la base de datos
+                    cliente = new Cliente(nombre, apellido, edad, email, RUT, fono);
+                    cliente.setId(id);
+                    return cliente;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return cliente;
+    }
+
     public boolean agregarCliente(Cliente cliente) throws SQLException {
         try (Connection connection = conn.conectar()) {
 
@@ -100,28 +131,25 @@ public class ClienteDAO implements interfazClienteDAO
         return false;
     }
 
-    public void actualizarCliente(Cliente cliente, String nuevoEmail, String nuevoFono) throws SQLException {
+    public boolean actualizarCliente(Cliente cliente) throws SQLException {
         try (Connection connection = conn.conectar()) {
-            String query = "UPDATE clientes SET email = ?, fono = ? WHERE id = ?";
+            String query = "UPDATE clientes SET nombre = ?, apellido = ?, edad = ?, email = ?, rut = ?, fono = ? WHERE id = ?";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 // Se establecen los parámetros de la consulta
-                preparedStatement.setString(1, nuevoEmail);
-                preparedStatement.setString(2, nuevoFono);
-                preparedStatement.setInt(3, cliente.getId());
+                preparedStatement.setString(1, cliente.getNombre());
+                preparedStatement.setString(2, cliente.getApellido());
+                preparedStatement.setInt(3, cliente.getEdad());
+                preparedStatement.setString(4, cliente.getEmail());
+                preparedStatement.setString(5, cliente.getRut());
+                preparedStatement.setString(6, cliente.getFono());
+                preparedStatement.setInt(7, cliente.getId());
+
 
                 // Se ejecuta la consulta preparada
                 int filasActualizadas = preparedStatement.executeUpdate();
 
-                if (filasActualizadas > 0) {
-                    // La actualización fue exitosa
-                    cliente.setEmail(nuevoEmail);
-                    cliente.setFono(nuevoFono);
-                    System.out.println();
-                    System.out.println("Cliente actualizado exitosamente.");
-                } else {
-                    System.out.println("Error: No se encontró el cliente con ID " + cliente.getId());
-                }
+                return filasActualizadas > 0;
             }
         } catch (SQLException e) {
             throw new SQLException("Error al actualizar cliente", e);
