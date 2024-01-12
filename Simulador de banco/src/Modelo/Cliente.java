@@ -18,6 +18,10 @@ public class Cliente extends Usuario {
         super(nombre, apellido, email, rut, fono);
     }
 
+    public Cliente(String nombre, String apellido, int edad, String email, String rut, String fono) {
+        super(nombre, apellido, edad, email, rut, fono);
+    }
+
     // Getters
     public CuentaDeAhorro getCuentaDeAhorro() { return cuentaDeAhorro; }
     public CuentaCorriente getCuentaCorriente() { return cuentaCorriente; }
@@ -39,6 +43,7 @@ public class Cliente extends Usuario {
         return "ID: " + this.getId() + " | " +
                 "Nombre: " + this.getNombre() + " | " +
                 "Apellido: " + this.getApellido() + " | " +
+                "Edad: " + this.getEdad() + " | " +
                 "Rut: " + this.getRut() + " | " +
                 "Email: " + this.getEmail() + " | " +
                 "Teléfono: " + this.getFono() + " | " +

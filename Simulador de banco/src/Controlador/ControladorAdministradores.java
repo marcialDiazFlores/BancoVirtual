@@ -9,7 +9,6 @@ public class ControladorAdministradores {
     }
 
     public boolean login(String rut, String contrasena) {
-        boolean login = daoAdministradores.validarLoginAdministrador(rut, contrasena);
-        return login;
+        return daoAdministradores.validarLoginAdministrador(rut, contrasena);
     }
 }

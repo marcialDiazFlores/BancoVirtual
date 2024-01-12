@@ -23,14 +23,33 @@ public class ControladorClientes {
         this.clientes = clienteDAO.obtenerTodosLosClientes();
     }
 
-    public void crearCliente(String nombre, String apellido, String email, String rut, String fono) {
+    public Object[][] obtenerDatosClientes() {
+        List<Cliente> listaClientes = clienteDAO.obtenerTodosLosClientes();
+        Object[][] data = new Object[listaClientes.size()][7];
+
+        for (int i = 0; i < listaClientes.size(); i++) {
+            Cliente cliente = listaClientes.get(i);
+            data[i][0] = cliente.getId();
+            data[i][1] = cliente.getNombre();
+            data[i][2] = cliente.getApellido();
+            data[i][3] = cliente.getEdad();
+            data[i][4] = cliente.getEmail();
+            data[i][5] = cliente.getRut();
+            data[i][6] = cliente.getFono();
+        }
+
+        return data;
+    }
+
+    public boolean crearCliente(String nombre, String apellido, int edad, String email, String rut, String fono) {
         try {
-            Cliente cliente = new Cliente(nombre, apellido, email, rut, fono);
-            clientes.add(cliente);
-            clienteDAO.agregarCliente(cliente);
+            Cliente cliente = new Cliente(nombre, apellido, edad, email, rut, fono);
+            //clientes.add(cliente);
+            return clienteDAO.agregarCliente(cliente);
         } catch (SQLException e) {
             // Manejo de la excepción con mensaje de error
             System.err.println("No se pudo agregar el cliente. Error: " + e.getMessage());
+            return false;
         }
     }
 
@@ -440,4 +459,15 @@ public class ControladorClientes {
     }
 
     */
+
+    /*public void crearCliente(String nombre, String apellido, int edad, String email, String rut, String fono) {
+        try {
+            Cliente cliente = new Cliente(nombre, apellido, edad, email, rut, fono);
+            clientes.add(cliente);
+            clienteDAO.agregarCliente(cliente);
+        } catch (SQLException e) {
+            // Manejo de la excepción con mensaje de error
+            System.err.println("No se pudo agregar el cliente. Error: " + e.getMessage());
+        }
+    }*/
 }

@@ -15,7 +15,12 @@ public class ConexionBDD implements interfazConexionBDD {
             Class.forName("org.postgresql.Driver");
 
             // Establecer la conexión con la base de datos PostgreSQL
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Banco", "postgres", "AdminBanco");
+            String dbUrl = System.getenv("DB_URL");
+            String dbUsuario = System.getenv("DB_USUARIO");
+            String dbContrasena = System.getenv("DB_CONTRASENA");
+
+            connection = DriverManager.getConnection(dbUrl, dbUsuario, dbContrasena);
+
             // System.out.println("Conectado a la base de datos");
             return connection;
         } catch (ClassNotFoundException e) {

@@ -1,0 +1,52 @@
+CREATE TABLE clientes (
+    ID SERIAL PRIMARY KEY,
+    Nombre VARCHAR(255) NOT NULL,
+    Apellido VARCHAR(255) NOT NULL,
+    Edad INTEGER NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    RUT VARCHAR(20) NOT NULL,
+    Fono VARCHAR(20) NOT NULL
+);
+
+INSERT INTO clientes (Nombre, Apellido, Edad, Email, RUT, Fono) VALUES
+    ('Juan', 'Pérez', 25, 'juan.perez@gmail.com', '11.517.581-5', '+56987654321'),
+    ('Ana', 'González', 32, 'ana.gonzalez@yahoo.com', '24.778.533-7', '+56991234567'),
+    ('Carlos', 'Ramírez', 45, 'carlos.ramirez@outlook.com', '18.539.071-3', '+56998765432'),
+    ('Luisa', 'Martínez', 28, 'luisa.martinez@hotmail.com', '11.814.823-1', '+56987654321'),
+    ('Felipe', 'Sánchez', 22, 'felipe.sanchez@icloud.com', '17.570.814-6', '+56991234567'),
+    ('Camila', 'López', 38, 'camila.lopez@protonmail.com', '17.908.834-7', '+56998765432'),
+    ('Martín', 'Gómez', 29, 'martin.gomez@live.com', '23.727.755-4', '+56987654321'),
+    ('Valentina', 'Rodríguez', 33, 'valentina.rodriguez@gmail.com', '5.920.571-4', '+56991234567'),
+    ('Pedro', 'Hernández', 27, 'pedro.hernandez@yahoo.com', '16.575.640-1', '+56998765432'),
+    ('Mónica', 'Torres', 40, 'monica.torres@hotmail.com', '23.866.645-7', '+56987654321');
+
+
+
+CREATE TABLE cuentas_ahorro (
+    id SERIAL PRIMARY KEY,
+    cliente_id INTEGER REFERENCES clientes(id) NOT NULL,
+    saldo INTEGER,
+    tasa_interes FLOAT,
+    tope_minimo INTEGER
+);
+
+INSERT INTO cuentas_ahorro (cliente_id, saldo, tasa_interes, tope_minimo) VALUES
+    ((SELECT id FROM clientes WHERE Nombre = 'Juan' AND Apellido = 'Pérez'), 800000, 8.7, 450000),
+    ((SELECT id FROM clientes WHERE Nombre = 'Ana' AND Apellido = 'González'), 500000, 5.2, 250000),
+    ((SELECT id FROM clientes WHERE Nombre = 'Carlos' AND Apellido = 'Ramírez'), 1200000, 12.3, 750000),
+    ((SELECT id FROM clientes WHERE Nombre = 'Luisa' AND Apellido = 'Martínez'), 600000, 6.8, 300000),
+    ((SELECT id FROM clientes WHERE Nombre = 'Felipe' AND Apellido = 'Sánchez'), 900000, 9.5, 500000);
+
+CREATE TABLE cuentas_corrientes (
+    id SERIAL PRIMARY KEY,
+    cliente_id INTEGER REFERENCES clientes(id) NOT NULL,
+    saldo INTEGER,
+    sobregiro INTEGER
+);
+
+INSERT INTO cuentas_corrientes (cliente_id, saldo, sobregiro) VALUES
+    (6, 950000, 450000),
+    (7, 125000, 250000),
+    (8, 1360000, 350000),
+    (9, 550500, 300000),
+    (10, 750000, 500000);

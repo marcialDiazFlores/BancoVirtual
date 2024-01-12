@@ -24,12 +24,13 @@ public class ClienteDAO implements interfazClienteDAO
                     int id = resultSet.getInt("id");
                     String nombre = resultSet.getString("nombre");
                     String apellido = resultSet.getString("apellido");
+                    int edad = resultSet.getInt("edad");
                     String email = resultSet.getString("email");
                     String rut = resultSet.getString("rut");
                     String fono = resultSet.getString("fono");
 
                     // Crea un objeto Cliente con los datos obtenidos de la base de datos
-                    Cliente cliente = new Cliente(nombre, apellido, email, rut, fono);
+                    Cliente cliente = new Cliente(nombre, apellido, edad, email, rut, fono);
                     cliente.setId(id);
 
                     // Agrega el cliente a la lista
@@ -43,15 +44,20 @@ public class ClienteDAO implements interfazClienteDAO
         return clientes;
     }
 
-    public void agregarCliente(Cliente cliente) throws SQLException {
+    public boolean agregarCliente(Cliente cliente) throws SQLException {
         try (Connection connection = conn.conectar()) {
 
-            String query = "INSERT INTO clientes (id, nombre, apellido, email, rut, fono) VALUES (DEFAULT, ?, ?, ?, ?, ?)";
+            if (verificarRutExistente(cliente.getRut())) {
+                return false;
+            }
+
+            String query = "INSERT INTO clientes (id, nombre, apellido, edad, email, rut, fono) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                 // Se obtienen los datos del objeto Cliente
                 String nombre = cliente.getNombre();
                 String apellido = cliente.getApellido();
+                int edad = cliente.getEdad();
                 String email = cliente.getEmail();
                 String rut = cliente.getRut();
                 String fono = cliente.getFono();
@@ -59,26 +65,15 @@ public class ClienteDAO implements interfazClienteDAO
                 // Se establecen los parámetros de la consulta
                 preparedStatement.setString(1, nombre);
                 preparedStatement.setString(2, apellido);
-                preparedStatement.setString(3, email);
-                preparedStatement.setString(4, rut);
-                preparedStatement.setString(5, fono);
+                preparedStatement.setInt(3, edad);
+                preparedStatement.setString(4, email);
+                preparedStatement.setString(5, rut);
+                preparedStatement.setString(6, fono);
 
                 // Se ejecuta la consulta preparada
-                preparedStatement.executeUpdate();
+                int filasAfectadas = preparedStatement.executeUpdate();
 
-                // Obtener las claves generadas (en este caso, el ID generado)
-                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        int idGenerado = generatedKeys.getInt(1);
-
-                        // Setea el ID en el objeto Cliente
-                        cliente.setId(idGenerado);
-
-                        // System.out.println("Nombre: " + cliente.getNombre() + ", ID: " + cliente.getId());
-                    } else {
-                        throw new SQLException("Error al obtener el ID del cliente");
-                    }
-                }
+                return filasAfectadas > 0;
 
                 // System.out.println("Inserción exitosa");
             }
@@ -87,6 +82,23 @@ public class ClienteDAO implements interfazClienteDAO
         }
     }
 
+    public boolean verificarRutExistente(String rut) throws SQLException {
+        try (Connection connection = conn.conectar()) {
+            String query = "SELECT COUNT(*) FROM clientes WHERE rut = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setString(1, rut);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        int count = resultSet.getInt(1);
+                        return count > 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Error al verificar el RUT existente", e);
+        }
+        return false;
+    }
 
     public void actualizarCliente(Cliente cliente, String nuevoEmail, String nuevoFono) throws SQLException {
         try (Connection connection = conn.conectar()) {
@@ -140,5 +152,51 @@ public class ClienteDAO implements interfazClienteDAO
             throw new SQLException("Error al eliminar al cliente de la base de datos", e);
         }
     }
+
+    /*public void agregarCliente(Cliente cliente) throws SQLException {
+        try (Connection connection = conn.conectar()) {
+
+            String query = "INSERT INTO clientes (id, nombre, apellido, edad, email, rut, fono) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+                // Se obtienen los datos del objeto Cliente
+                String nombre = cliente.getNombre();
+                String apellido = cliente.getApellido();
+                int edad = cliente.getEdad();
+                String email = cliente.getEmail();
+                String rut = cliente.getRut();
+                String fono = cliente.getFono();
+
+                // Se establecen los parámetros de la consulta
+                preparedStatement.setString(1, nombre);
+                preparedStatement.setString(2, apellido);
+                preparedStatement.setInt(3, edad);
+                preparedStatement.setString(4, email);
+                preparedStatement.setString(5, rut);
+                preparedStatement.setString(6, fono);
+
+                // Se ejecuta la consulta preparada
+                preparedStatement.executeUpdate();
+
+                // Obtener las claves generadas (en este caso, el ID generado)
+                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int idGenerado = generatedKeys.getInt(1);
+
+                        // Setea el ID en el objeto Cliente
+                        cliente.setId(idGenerado);
+
+                        // System.out.println("Nombre: " + cliente.getNombre() + ", ID: " + cliente.getId());
+                    } else {
+                        throw new SQLException("Error al obtener el ID del cliente");
+                    }
+                }
+
+                // System.out.println("Inserción exitosa");
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Error al agregar cliente", e);
+        }
+    }*/
     
 }

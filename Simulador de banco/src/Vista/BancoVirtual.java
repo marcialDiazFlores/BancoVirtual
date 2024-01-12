@@ -4,6 +4,7 @@ import Controlador.*;
 
 import java.util.Scanner;
 
+
 public class BancoVirtual {
     private static ControladorClientes controladorClientes;
     private static ControladorCuentasDeAhorro controladorCuentasDeAhorro;
@@ -110,7 +111,7 @@ public class BancoVirtual {
 
         try {
             int cantClientes = controladorClientes.getCantidadClientes();
-            controladorClientes.crearCliente(nombre, apellido, email, rut, fono);
+            //controladorClientes.crearCliente(nombre, apellido, edad, email, rut, fono);
             System.out.println("\nCliente creado con éxito.");
         } catch (Exception e) {
             System.out.println("Error al crear el cliente: " + e.getMessage());
@@ -701,17 +702,21 @@ public class BancoVirtual {
         }
     }
 
-    private static boolean validarNombre(String nombre) {
+    public static boolean validarNombre(String nombre) {
         String regex = "^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+$";
         return !nombre.isEmpty() && nombre.matches(regex) && (nombre.length() >= 3) && (nombre.length() <= 12);
     }
 
-    private static boolean validarApellido(String apellido) {
+    public static boolean validarApellido(String apellido) {
         String regex = "^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+$";
         return !apellido.isEmpty() && apellido.matches(regex) && (apellido.length() >= 3) && (apellido.length() <= 12);
     }
 
-    private static boolean validarEmail(String email) {
+    public static boolean validarEdad(int edad) {
+        return edad >= 18 && edad <= 105;
+    }
+
+    public static boolean validarEmail(String email) {
         String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         return email.matches(regex);
     }
@@ -740,20 +745,20 @@ public class BancoVirtual {
         return validacion;
     }
 
-    private static boolean validarTelefono(String telefono) {
+    public static boolean validarTelefono(String telefono) {
         String regex = "^(\\+[1-9]\\d{0,11}|\\d{6,10})$";
         return telefono.matches(regex);
     }
 
-    private static boolean validarSaldo(int saldo) {
+    public static boolean validarSaldo(int saldo) {
         return saldo > 0;
     }
 
-    private static boolean validarSobregiro(int sobregiro) {
+    public static boolean validarSobregiro(int sobregiro) {
         return sobregiro > 0 && sobregiro < 1000000;
     }
 
-    private static boolean validarContrasena(String contrasena) {
+    public static boolean validarContrasena(String contrasena) {
         // Al menos un número, una letra mayúscula y longitud entre 5 y 10 caracteres
         String regex = "^(?=.*[0-9])(?=.*[A-Z]).{5,10}$";
         return contrasena.matches(regex);

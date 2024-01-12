@@ -4,6 +4,7 @@ public class Usuario {
     private int id;
     private String nombre;
     private String apellido;
+    private int edad;
     private String email;
     private String rut;
     private String contrasena;
@@ -23,6 +24,15 @@ public class Usuario {
         this.fono = fono;
     }
 
+    public Usuario(String nombre, String apellido, int edad, String email, String rut, String fono) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.edad = edad;
+        this.email = email;
+        this.rut = rut;
+        this.fono = fono;
+    }
+
     // Getters
 
     public int getId() {
@@ -36,6 +46,7 @@ public class Usuario {
     public String getApellido() {
         return apellido;
     }
+    public int getEdad() { return edad; };
 
     public String getEmail() {
         return email;
@@ -63,6 +74,7 @@ public class Usuario {
     public void setApellido(String apellido) {
         this.apellido = apellido;
     }
+    public void setEdad(int edad) { this.edad = edad; }
 
     public void setEmail(String email) {
         this.email = email;
@@ -82,6 +94,7 @@ public class Usuario {
         return "ID: " + this.getId() + " | " +
                 "Nombre: " + this.getNombre() + " | " +
                 "Apellido: " + this.getApellido() + " | " +
+                "Edad: " + this.getEdad() + " | " +
                 "Rut: " + this.getRut() + " | " +
                 "Email: " + this.getEmail() + " | " +
                 "Teléfono: " + this.getFono();
