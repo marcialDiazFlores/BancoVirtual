@@ -15,7 +15,7 @@ public class ClienteDAO implements interfazClienteDAO
         List<Cliente> clientes = new ArrayList<>();
 
         try (Connection connection = conn.conectar()) {
-            String query = "SELECT * FROM clientes";
+            String query = "SELECT * FROM clientes ORDER BY id ASC";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query);
                  ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -131,19 +131,18 @@ public class ClienteDAO implements interfazClienteDAO
         return false;
     }
 
-    public boolean actualizarCliente(Cliente cliente) throws SQLException {
+    public boolean actualizarCliente(String nombre, String apellido, int edad, String email, String fono, String rut) throws SQLException {
         try (Connection connection = conn.conectar()) {
-            String query = "UPDATE clientes SET nombre = ?, apellido = ?, edad = ?, email = ?, rut = ?, fono = ? WHERE id = ?";
+            String query = "UPDATE clientes SET nombre = ?, apellido = ?, edad = ?, email = ?, fono = ? WHERE rut = ?";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 // Se establecen los parámetros de la consulta
-                preparedStatement.setString(1, cliente.getNombre());
-                preparedStatement.setString(2, cliente.getApellido());
-                preparedStatement.setInt(3, cliente.getEdad());
-                preparedStatement.setString(4, cliente.getEmail());
-                preparedStatement.setString(5, cliente.getRut());
-                preparedStatement.setString(6, cliente.getFono());
-                preparedStatement.setInt(7, cliente.getId());
+                preparedStatement.setString(1, nombre);
+                preparedStatement.setString(2, apellido);
+                preparedStatement.setInt(3, edad);
+                preparedStatement.setString(4, email);
+                preparedStatement.setString(5, fono);
+                preparedStatement.setString(6, rut);
 
 
                 // Se ejecuta la consulta preparada
@@ -157,7 +156,7 @@ public class ClienteDAO implements interfazClienteDAO
     }
 
 
-    public void eliminarCliente(int id) throws SQLException {
+    public boolean eliminarCliente(int id) throws SQLException {
         try (Connection connection = conn.conectar()) {
             String query = "DELETE FROM clientes WHERE id = ?";
 
@@ -170,8 +169,10 @@ public class ClienteDAO implements interfazClienteDAO
 
                 if (filasActualizadas > 0) {
                     System.out.println("Cliente eliminado exitosamente de la base de datos.");
+                    return true;
                 } else {
                     System.out.println("Error: No se encontró el cliente con ID " + id);
+                    return false;
                 }
             }
         } catch (SQLException e) {

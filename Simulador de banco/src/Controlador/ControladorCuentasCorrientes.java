@@ -82,13 +82,28 @@ public class ControladorCuentasCorrientes {
                 CuentaCorriente cuenta = encontrarCuentaPorIdCliente(idCliente);
                 if (cuenta != null) {
                     cuentasCorrientes.remove(cuenta);
-                    cuentaCorrienteDAO.eliminarCuentaCorriente(cuenta);
+                    cuentaCorrienteDAO.eliminarCuentaCorriente(cuenta.getIdCliente());
                     controladorClientes.eliminarCuentaCorriente(cuenta);
                 }
             }
         } catch (SQLException e) {
             // Manejo de la excepción con mensaje de error
             System.err.println("No se pudo eliminar la cuenta corriente de la base de datos. Error: " + e.getMessage());
+        }
+    }
+
+    public boolean eliminarCuentaCorriente(int id) {
+        try {
+            if (cuentaCorrienteDAO.eliminarCuentaCorriente(id)){
+                return true;
+            }
+            else {
+                return false;
+            }
+        } catch (SQLException e) {
+            // Manejo de la excepción con mensaje de error
+            System.err.println("No se pudo eliminar la cuenta corriente de la base de datos. Error: " + e.getMessage());
+            return false;
         }
     }
 
@@ -139,8 +154,8 @@ public class ControladorCuentasCorrientes {
         }
     }
 
-    public boolean tieneCuentaCorriente(Cliente cliente) {
-        return cuentaCorrienteDAO.tieneCuentaCorriente(cliente.getId());
+    public boolean tieneCuentaCorriente(int idCliente) {
+        return cuentaCorrienteDAO.tieneCuentaCorriente(idCliente);
     }
     public int getCantidadCuentasCorrientes() {
         if (cuentasCorrientes != null){

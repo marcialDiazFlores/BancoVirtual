@@ -142,6 +142,34 @@ public class ControladorClientes {
         }
     }
 
+    public boolean eliminarCliente(int id) {
+        try {
+            ControladorCuentasDeAhorro controladorCuentasDeAhorro = new ControladorCuentasDeAhorro();
+            ControladorCuentasCorrientes controladorCuentasCorrientes = new ControladorCuentasCorrientes();
+            if (controladorCuentasDeAhorro.tieneCuentaDeAhorro(id)){
+                controladorCuentasDeAhorro.eliminarCuentaDeAhorro(id);
+            }
+            if (controladorCuentasCorrientes.tieneCuentaCorriente(id)){
+                controladorCuentasCorrientes.eliminarCuentaCorriente(id);
+            }
+            return clienteDAO.eliminarCliente(id);
+        } catch (SQLException e) {
+            // Manejo de la excepción con mensaje de error
+            System.err.println("No se pudo eliminar al cliente de la base de datos. Error: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean actualizarCliente(String nombre, String apellido, int edad, String email, String fono, String rut) {
+        try {
+            return clienteDAO.actualizarCliente(nombre, apellido, edad, email, fono, rut);
+        } catch (SQLException e) {
+            // Manejo de la excepción con mensaje de error
+            System.err.println("No se pudo eliminar al cliente de la base de datos. Error: " + e.getMessage());
+            return false;
+        }
+    }
+
     public Object[] buscarCliente(String rut) {
         Cliente cliente = clienteDAO.buscarCliente(rut);
         CuentaAhorroDAO ahorroDAO = new CuentaAhorroDAO();
@@ -150,21 +178,21 @@ public class ControladorClientes {
         String ahorro;
         String corriente;
 
-        if (ahorroDAO.tieneCuentaDeAhorro(cliente.getId())) {
-            ahorro = "Sí";
-        }
-        else {
-            ahorro = "No";
-        }
-
-        if (corrienteDAO.tieneCuentaCorriente(cliente.getId())) {
-            corriente = "Sí";
-        }
-        else {
-            corriente = "No";
-        }
-
         if (cliente != null) {
+            if (ahorroDAO.tieneCuentaDeAhorro(cliente.getId())) {
+                ahorro = "Sí";
+            }
+            else {
+                ahorro = "No";
+            }
+
+            if (corrienteDAO.tieneCuentaCorriente(cliente.getId())) {
+                corriente = "Sí";
+            }
+            else {
+                corriente = "No";
+            }
+
             Object[] datos = {cliente.getId(), cliente.getNombre(), cliente.getApellido(), cliente.getEdad(), cliente.getEmail(), cliente.getRut(), cliente.getFono(), ahorro, corriente};
             return datos;
         }
@@ -182,6 +210,16 @@ public class ControladorClientes {
             }
         }
         return null;
+    }
+
+    public int encontrarIdClientePorRUT(String rut) {
+        actualizarCuentas();
+        for (Cliente cliente : clientes) {
+            if (cliente.getRut().equals(rut)) {
+                return cliente.getId();
+            }
+        }
+        return -1;
     }
     public void actualizarCuentas() {
         ControladorCuentasDeAhorro controladorCuentasDeAhorro = new ControladorCuentasDeAhorro();
@@ -205,21 +243,11 @@ public class ControladorClientes {
         return null;
     }
 
-    /*public boolean hayCuentaAhorro(int id){
-        Cliente clienteSeleccionado = clientes.get(id);
-        if (clienteSeleccionado.getCuentaDeAhorro() != null){
-            return true;
-        }
-        else {
-            return false;
-        }
-    }*/
-
     public boolean hayCuentaAhorro(String rut){
         Cliente clienteSeleccionado = encontrarClientePorRUT(rut);
         ControladorCuentasDeAhorro controladorCuentasDeAhorro = new ControladorCuentasDeAhorro();
 
-        if (controladorCuentasDeAhorro.tieneCuentaDeAhorro(clienteSeleccionado)){
+        if (controladorCuentasDeAhorro.tieneCuentaDeAhorro(clienteSeleccionado.getId())){
             return true;
         }
         else {
@@ -231,7 +259,7 @@ public class ControladorClientes {
         Cliente clienteSeleccionado = encontrarClientePorRUT(rut);
         ControladorCuentasCorrientes controladorCuentasCorrientes = new ControladorCuentasCorrientes();
 
-        if (controladorCuentasCorrientes.tieneCuentaCorriente(clienteSeleccionado)){
+        if (controladorCuentasCorrientes.tieneCuentaCorriente(clienteSeleccionado.getId())){
             return true;
         }
         else {
@@ -326,182 +354,4 @@ public class ControladorClientes {
         }
         this.clientes = lista;
     }
-
-    /*
-
-    public void crearCuentaAhorro(int idCliente, int saldoInicial, String tipo, int tasaInteres, int topeMinimo) {
-        Cliente cliente = encontrarClientePorId(idCliente);
-        if (cliente != null) {
-            CuentaAhorro cuenta = new CuentaAhorro(idCliente, saldoInicial, tipo, tasaInteres, topeMinimo);
-            cliente.agregarCuenta(cuenta);
-            //conn.agregarCuentaAhorro(cuenta.getId(), idCliente, saldoInicial, tasaInteres, topeMinimo);
-        } else {
-            System.out.println("Error: Cliente no encontrado al crear cuenta de ahorro.");
-        }
-    }
-
-    public int getIdCliente(int seleccionCliente){
-        Cliente clienteSeleccionado = clientes.get(seleccionCliente - 1);
-        return clienteSeleccionado.getId();
-    }
-
-    public void crearCuentaCorriente(int idCliente, int saldo, String tipo, int sobregiro) {
-        Cliente cliente = encontrarClientePorId(idCliente);
-        if (cliente != null) {
-            CuentaCorriente cuenta = new CuentaCorriente(idCliente, saldo, tipo, sobregiro);
-            cliente.agregarCuenta(cuenta);
-            //conn.agregarCuentaCorriente(cuenta.getId(), idCliente, saldo, sobregiro);
-        } else {
-            System.out.println("Error: Cliente no encontrado al crear cuenta corriente.");
-        }
-    }
-
-    */
-
-    /*
-
-    public void eliminarCliente(int idCliente) {
-        Cliente cliente = encontrarClientePorId(idCliente);
-        if (cliente != null) {
-            clientes.remove(cliente);
-            //conn.eliminarCliente(idCliente);
-            System.out.println("Cliente eliminado con éxito.");
-        } else {
-            System.out.println("Error: Cliente no encontrado.");
-        }
-    }
-
-    public void eliminarCuenta(CuentaBancaria cuenta) {
-        for (Cliente cliente : clientes) {
-            if (cliente.getCuentas().contains(cuenta)) {
-                cliente.eliminarCuenta(cuenta);
-                System.out.println("Cuenta eliminada con éxito.");
-                return;
-            }
-        }
-        System.out.println("Error: Cuenta no encontrada.");
-    }
-
-    public List<CuentaBancaria> getCuentasCliente(Cliente cliente){
-        if(cliente.getCuentas() != null){
-            return cliente.getCuentas();
-        }
-        else {
-            System.out.println("El cliente no tiene cuentas asociadas para mostrar");
-            return null;
-        }
-    }
-
-
-    public boolean hayCuentas(int seleccionCliente){
-        Cliente clienteSeleccionado = clientes.get(seleccionCliente - 1);
-        return !clienteSeleccionado.getCuentas().isEmpty();
-    }
-
-    public int getCantidadCuentas(int seleccionCliente) {
-        Cliente clienteSeleccionado = clientes.get(seleccionCliente - 1);
-        List<CuentaBancaria> cuentas = clienteSeleccionado.getCuentas();
-        if (cuentas != null){
-            return cuentas.size();
-        }
-        else {
-            return 0;
-        }
-    }
-
-    public String nombreYApellido(int seleccionCliente){
-        Cliente clienteSeleccionado = clientes.get(seleccionCliente - 1);
-
-        String nombreYApellido = clienteSeleccionado.getNombre() + " " + clienteSeleccionado.getApellido();
-        return nombreYApellido;
-    }
-
-    /*
-
-    public void mostrarDetallesCuenta(int seleccionCliente, int tipo){
-        Cliente clienteSeleccionado = clientes.get(seleccionCliente - 1);
-        CuentaAhorro cuentaAhorro = clienteSeleccionado.getCuentaAhorro();
-        CuentaCorriente cuentaCorriente = clienteSeleccionado.getCuentaCorriente();
-
-        if (tipo == 1){
-            mostrarDetallesCuentaAhorro(cuentaAhorro);
-        } else if (tipo == 2) {
-            mostrarDetallesCuentaCorriente(cuentaCorriente);
-        }
-        else{
-            System.out.println("Opción inválida");
-            return;
-        }
-    }
-
-    public void mostrarDetallesCuentaAhorro(CuentaAhorro cuenta){
-
-        // Mostrar detalles de la cuenta
-        System.out.println("\nDetalles de la Cuenta de Ahorro:");
-        System.out.println();
-        System.out.println("Saldo: $" + cuenta.getSaldo());
-        System.out.println("Tasa de interés: " + cuenta.getTasaInteres() + "%");
-        System.out.println("Ahorro mínimo: $" + cuenta.getTopeMinimo());
-    }
-
-    public void mostrarDetallesCuentaCorriente(CuentaCorriente cuenta){
-
-        // Mostrar detalles de la cuenta
-        System.out.println("\nDetalles de la Cuenta Corriente:");
-        System.out.println("Saldo: $" + cuenta.getSaldo());
-        System.out.println("Sobregiro: $" + cuenta.getSobregiro());
-    }
-
-    public void verCuentas(int seleccionCliente){
-        Cliente clienteSeleccionado = clientes.get(seleccionCliente - 1);
-        List<CuentaBancaria> cuentas = clienteSeleccionado.getCuentas();
-        System.out.println();
-        for (int i = 0; i < cuentas.size(); i++) {
-            String tipo;
-            if(cuentas.get(i).getTipo().equals("a")){
-                tipo = "Cuenta de Ahorro";
-                System.out.println(String.valueOf(i + 1) + ". " + tipo);
-                System.out.println();
-            } else if (cuentas.get(i).getTipo().equals("c")) {
-                tipo = "Cuenta Corriente";
-                System.out.println(String.valueOf(i + 1) + ". " + tipo);
-                System.out.println();
-            }
-        }
-    }
-
-    public void procesarTransaccion(int seleccionCliente, int tipoC, int tipoT, int monto){
-        Cliente clienteSeleccionado = clientes.get(seleccionCliente - 1);
-        int idCliente = clienteSeleccionado.getId();
-        if(tipoC == 1){
-            CuentaAhorro cuenta = clienteSeleccionado.getCuentaAhorro();
-            if(tipoT == 1){
-                cuenta.depositar(monto);
-                System.out.println("El deposito se realizó con éxito");
-            } else if (tipoT == 2) {
-                cuenta.retirar(monto);
-            }
-        } else if (tipoC == 2) {
-            CuentaCorriente cuenta = clienteSeleccionado.getCuentaCorriente();
-            if(tipoT == 1){
-                cuenta.depositar(monto);
-                System.out.println("El deposito se realizó con éxito");
-            } else if (tipoT == 2) {
-                cuenta.retirar(monto);
-            }
-        }
-    }
-
-    */
-
-    /*public void crearCliente(String nombre, String apellido, int edad, String email, String rut, String fono) {
-        try {
-            Cliente cliente = new Cliente(nombre, apellido, edad, email, rut, fono);
-            clientes.add(cliente);
-            clienteDAO.agregarCliente(cliente);
-        } catch (SQLException e) {
-            // Manejo de la excepción con mensaje de error
-            System.err.println("No se pudo agregar el cliente. Error: " + e.getMessage());
-        }
-    }*/
 }

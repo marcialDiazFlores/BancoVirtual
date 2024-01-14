@@ -753,6 +753,12 @@ public class BancoVirtual {
     public static boolean validarSaldo(int saldo) {
         return saldo > 0;
     }
+    public static boolean validarTasaInteres(double tasaInteres) {
+        return tasaInteres > 0;
+    }
+    public static boolean validarTopeMinimo(int topeMinimo) {
+        return topeMinimo > 0;
+    }
 
     public static boolean validarSobregiro(int sobregiro) {
         return sobregiro > 0 && sobregiro < 1000000;

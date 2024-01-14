@@ -8,6 +8,9 @@ import java.awt.event.ActionListener;
 import java.util.Locale;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 import java.awt.*;
 
 import static Vista.BancoVirtual.*;
@@ -91,6 +94,13 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
+        btnGestionCuentasAhorro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionCuentasDeAhorro();
+            }
+        });
+
         btnSalir.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -163,7 +173,7 @@ public class InterfazBancoVirtual extends JFrame {
         btnEliminarCliente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // eliminarCliente();
+                eliminarCliente();
             }
         });
 
@@ -285,7 +295,7 @@ public class InterfazBancoVirtual extends JFrame {
             }
 
             // Botón de actualizado
-            JButton btnActualizar = new JButton("Actualizar");
+            JButton btnActualizar = new JButton("Actualizar registros");
             btnActualizar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -336,67 +346,47 @@ public class InterfazBancoVirtual extends JFrame {
     }
 
     private void actualizarCliente() {
-        setTitle("Actualizar cliente (dejar campo vacío para mantenerlo igual)");
+        setTitle("Actualizar datos de un cliente");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel actualizarClientePanel = new JPanel(new GridLayout(7, 2));
+        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel nombreLabel = new JLabel("Nombre:");
-        JTextField nombreField = new JTextField();
-
-        JLabel apellidoLabel = new JLabel("Apellido:");
-        JTextField apellidoField = new JTextField();
-
-        JLabel edadLabel = new JLabel("Edad:");
-        SpinnerModel edadModel = new SpinnerNumberModel(18, 1, 110, 1); // Rango de edad de 1 a 120, inicio en 18
-        JSpinner edadSpinner = new JSpinner(edadModel);
-
-        JLabel emailLabel = new JLabel("Email:");
-        JTextField emailField = new JTextField();
-
-        JLabel rutLabel = new JLabel("RUT:");
+        JLabel rutLabel = new JLabel("RUT del cliente:");
         JTextField rutField = new JTextField();
 
-        JLabel fonoLabel = new JLabel("Teléfono:");
-        JTextField fonoField = new JTextField();
-
-        JButton btnActualizarCliente = new JButton("Actualizar cliente");
+        JButton btnBuscar = new JButton("Buscar");
         JButton btnVolver = new JButton("Volver");
 
-        actualizarClientePanel.add(nombreLabel);
-        actualizarClientePanel.add(nombreField);
-        actualizarClientePanel.add(apellidoLabel);
-        actualizarClientePanel.add(apellidoField);
-        actualizarClientePanel.add(edadLabel);
-        actualizarClientePanel.add(edadSpinner);
-        actualizarClientePanel.add(emailLabel);
-        actualizarClientePanel.add(emailField);
-        actualizarClientePanel.add(rutLabel);
-        actualizarClientePanel.add(rutField);
-        actualizarClientePanel.add(fonoLabel);
-        actualizarClientePanel.add(fonoField);
-        actualizarClientePanel.add(btnActualizarCliente);
-        actualizarClientePanel.add(btnVolver);
+        buscarClientePanel.add(rutLabel);
+        buscarClientePanel.add(rutField);
+
+        buscarClientePanel.add(btnBuscar);
+        buscarClientePanel.add(btnVolver);
 
         getContentPane().removeAll(); // Limpiar el contenido actual
         getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
-        getContentPane().add(actualizarClientePanel, BorderLayout.CENTER);
+        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
 
         // Configurar el tamaño y hacer visible la ventana
-        setSize(500, 350);
+        setSize(350, 250);
         setLocationRelativeTo(null); // Centrar en la pantalla
         setVisible(true);
 
-        btnActualizarCliente.addActionListener(new ActionListener() {
+        btnBuscar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(validarDatosIngresoCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
-                    /*if(controladorClientes.crearCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
-                        JOptionPane.showMessageDialog(actualizarClientePanel, "Datos del cliente actualizados con éxito", "Actualización exitosa", JOptionPane.INFORMATION_MESSAGE);
+                if(validarRut(rutField.getText())){
+                    Object[] datos = controladorClientes.buscarCliente(rutField.getText());
+                    if(datos.length > 0){
+                        JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
+                        mostrarDatosYActualizar(datos, rutField.getText());
                     }
                     else {
-                        JOptionPane.showMessageDialog(actualizarClientePanel, "No se pudieron actualizar los datos del cliente", "Actualización fallida", JOptionPane.ERROR_MESSAGE);
-                    }*/
+                        JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(buscarClientePanel, "Ingrese un RUT válido", "RUT inválido", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -408,6 +398,137 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
     }
+
+    private void mostrarDatosYActualizar(Object[] datos, String rut) {
+        getContentPane().removeAll();
+        setTitle("Actualizar cliente");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(600, 300);
+
+        // Crear un panel para organizar la interfaz
+        JPanel mainPanel = new JPanel(new BorderLayout());
+
+        // Etiqueta para el encabezado
+        JLabel actualizarLabel = new JLabel("Actualizar cliente");
+        actualizarLabel.setHorizontalAlignment(JLabel.CENTER);
+        mainPanel.add(actualizarLabel, BorderLayout.NORTH);
+
+        String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono"};
+
+        // Datos
+        DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
+        JTable table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+        tableModel.addRow(datos);
+        setVisible(true); // Asegura que la ventana sea visible
+        table.setVisible(true);
+
+        // Panel para los campos de actualización
+        JPanel actualizarClientePanel = new JPanel(new GridLayout(6, 2));
+
+        JLabel nombreLabel = new JLabel("Nombre:");
+        JTextField nombreField = new JTextField();
+        addPlaceholder(nombreField, "(Nombre actual: " + ((String) datos[1]) + ")");
+
+        JLabel apellidoLabel = new JLabel("Apellido:");
+        JTextField apellidoField = new JTextField();
+        addPlaceholder(apellidoField, "(Apellido actual: " + ((String) datos[2]) + ")");
+
+        JLabel edadLabel = new JLabel("Edad:");
+        SpinnerModel edadModel = new SpinnerNumberModel(18, 1, 110, 1);
+        JSpinner edadSpinner = new JSpinner(edadModel);
+
+        JLabel emailLabel = new JLabel("Email:");
+        JTextField emailField = new JTextField();
+        addPlaceholder(emailField, "(Email actual: " + ((String) datos[4]) + ")");
+
+        JLabel fonoLabel = new JLabel("Teléfono:");
+        JTextField fonoField = new JTextField();
+        addPlaceholder(fonoField, "(Teléfono actual: " + ((String) datos[6]) + ")");
+
+        actualizarClientePanel.add(nombreLabel);
+        actualizarClientePanel.add(nombreField);
+        actualizarClientePanel.add(apellidoLabel);
+        actualizarClientePanel.add(apellidoField);
+        actualizarClientePanel.add(edadLabel);
+        actualizarClientePanel.add(edadSpinner);
+        actualizarClientePanel.add(emailLabel);
+        actualizarClientePanel.add(emailField);
+        actualizarClientePanel.add(fonoLabel);
+        actualizarClientePanel.add(fonoField);
+
+        // Panel para los botones
+        JPanel buttonPanel = new JPanel();
+        JButton btnActualizar = new JButton("Actualizar");
+        JButton btnVolver = new JButton("Volver");
+
+        buttonPanel.add(btnActualizar);
+        buttonPanel.add(btnVolver);
+
+        // Agregar los paneles al panel principal
+        mainPanel.add(actualizarClientePanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Agregar el panel principal a la ventana
+        getContentPane().add(mainPanel);
+
+        btnActualizar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(validarDatosActualizacionCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), fonoField.getText())){
+                    if (controladorClientes.actualizarCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), fonoField.getText(), rut)) {
+                        JOptionPane.showMessageDialog(getContentPane(), "Los datos del cliente han sido actualizados", "Actualización completada", JOptionPane.INFORMATION_MESSAGE);
+                        gestionClientes();
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(getContentPane(), "No se pudieron actualizar los datos del cliente", "Actualización fallida", JOptionPane.ERROR_MESSAGE);
+                        gestionClientes();
+                    }
+                }
+                else {
+                    gestionClientes();
+                }
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionClientes();
+            }
+        });
+
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+    }
+
+    private void addPlaceholder(JTextField textField, String placeholder) {
+        // Crear un color más tenue para el placeholder
+        Color placeholderColor = new Color(150, 150, 150);
+
+        // Establecer un nuevo Document para el JTextField
+        textField.setDocument(new PlainDocument() {
+            @Override
+            public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+                // Verificar si el texto actual es el placeholder
+                if (textField.getText().equals(placeholder)) {
+                    // Eliminar el placeholder al ingresar un nuevo texto
+                    super.remove(0, getLength());
+                    super.insertString(0, str, a);
+                    textField.setForeground(Color.BLACK);  // Restaurar el color del texto
+                } else {
+                    super.insertString(offs, str, a);
+                }
+            }
+        });
+
+        // Configurar el color del texto y establecer el placeholder
+        textField.setForeground(placeholderColor);
+        textField.setText(placeholder);
+    }
+
 
     private void buscarCliente() {
         setTitle("Buscar cliente por RUT");
@@ -467,7 +588,7 @@ public class InterfazBancoVirtual extends JFrame {
         getContentPane().removeAll();
         setTitle("Datos del cliente:");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 350);
+        setSize(1500, 150);
 
         String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono", "¿Cuenta de ahorro?", "¿Cuenta corriente?"};
 
@@ -517,6 +638,272 @@ public class InterfazBancoVirtual extends JFrame {
 
         setLocationRelativeTo(null); // Centrar en la pantalla
         setVisible(true);
+    }
+
+    private void eliminarCliente() {
+        setTitle("Eliminar cliente");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
+
+        JLabel rutLabel = new JLabel("RUT del cliente:");
+        JTextField rutField = new JTextField();
+
+        JButton btnBuscar = new JButton("Buscar");
+        JButton btnVolver = new JButton("Volver");
+
+        buscarClientePanel.add(rutLabel);
+        buscarClientePanel.add(rutField);
+
+        buscarClientePanel.add(btnBuscar);
+        buscarClientePanel.add(btnVolver);
+
+        getContentPane().removeAll(); // Limpiar el contenido actual
+        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
+        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
+
+        // Configurar el tamaño y hacer visible la ventana
+        setSize(350, 250);
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+
+        btnBuscar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(validarRut(rutField.getText())){
+                    Object[] datos = controladorClientes.buscarCliente(rutField.getText());
+                    if(datos.length > 0){
+                        JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
+                        mostrarDatosYEliminar(datos);
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(buscarClientePanel, "Ingrese un RUT válido", "RUT inválido", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionClientes();
+            }
+        });
+    }
+
+    private void mostrarDatosYEliminar(Object[] datos) {
+        getContentPane().removeAll();
+        setTitle("Datos del cliente:");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1400, 160);
+
+        // Texto "¿Eliminar cliente?"
+        JLabel eliminarLabel = new JLabel("¿Eliminar cliente?");
+        eliminarLabel.setHorizontalAlignment(JLabel.CENTER);
+        getContentPane().add(eliminarLabel, BorderLayout.NORTH);
+
+        String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono", "¿Cuenta de ahorro?", "¿Cuenta corriente?"};
+
+        // Datos
+        DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
+
+        JTable table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
+
+        tableModel.addRow(datos);
+
+        // Botones Sí y No
+        JPanel buttonPanel = new JPanel();
+        JButton btnSi = new JButton("Sí");
+        JButton btnNo = new JButton("No");
+
+        buttonPanel.add(btnSi);
+        buttonPanel.add(btnNo);
+
+        // Agregar el panel de botones a la parte inferior de la ventana
+        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
+        btnSi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (controladorClientes.eliminarCliente((Integer) datos[0])) {
+                    JOptionPane.showMessageDialog(getContentPane(), "Cliente eliminado de la base de datos", "Eliminación completada", JOptionPane.INFORMATION_MESSAGE);
+                    gestionClientes();
+                }
+                else {
+                    JOptionPane.showMessageDialog(getContentPane(), "No se pudo eliminar al cliente", "Eliminación fallida", JOptionPane.ERROR_MESSAGE);
+                    gestionClientes();
+                }
+            }
+        });
+
+        btnNo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionClientes();
+            }
+        });
+
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+    }
+
+    private void gestionCuentasDeAhorro() {
+        getContentPane().removeAll(); // Limpiar el contenido actual
+
+        setTitle("Gestión de cuentas de ahorro");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        controladorCuentasDeAhorro = new ControladorCuentasDeAhorro();
+
+        JPanel gestionCuentasDeAhorroPanel = new JPanel(new FlowLayout());
+
+        JButton btnIngresarCuentaDeAhorro = new JButton("Ingresar cuenta de ahorro");
+        JButton btnListaDeCuentasDeAhorro = new JButton("Lista de cuentas de ahorro");
+        JButton btnActualizarCuentaDeAhorro = new JButton("Actualizar cuenta de ahorro");
+        JButton btnEliminarCuentaDeAhorro = new JButton("Eliminar cuenta de ahorro");
+        JButton btnBuscarCuentaDeAhorro = new JButton("Buscar cuenta de ahorro por RUT");
+        JButton btnVolver = new JButton("Volver");
+
+        gestionCuentasDeAhorroPanel.add(btnIngresarCuentaDeAhorro);
+        gestionCuentasDeAhorroPanel.add(btnListaDeCuentasDeAhorro);
+        gestionCuentasDeAhorroPanel.add(btnActualizarCuentaDeAhorro);
+        gestionCuentasDeAhorroPanel.add(btnEliminarCuentaDeAhorro);
+        gestionCuentasDeAhorroPanel.add(btnBuscarCuentaDeAhorro);
+        gestionCuentasDeAhorroPanel.add(btnVolver);
+
+        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
+        getContentPane().add(gestionCuentasDeAhorroPanel, BorderLayout.CENTER);
+
+        // Configurar el tamaño y hacer visible la ventana
+        setSize(300, 250);
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+
+        btnIngresarCuentaDeAhorro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ingresarCuentaDeAhorro();
+            }
+        });
+
+        /*btnListaDeCuentasDeAhorro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                listaDeCuentasDeAhorro();
+            }
+        });
+
+        btnActualizarCuentaDeAhorro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizarCuentaDeAhorro();
+            }
+        });
+
+        btnEliminarCuentaDeAhorro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                eliminarCuentaDeAhorro();
+            }
+        });
+
+        btnBuscarCuentaDeAhorro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                buscarCuentaDeAhorro();
+            }
+        });*/
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                abrirVentanaPrincipal();
+            }
+        });
+    }
+
+    private void ingresarCuentaDeAhorro() {
+        setTitle("Ingresar cuenta de ahorro");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel ingresarCuentaDeAhorroPanel = new JPanel(new GridLayout(7, 2));
+
+        JLabel rutLabel = new JLabel("Ingrese RUT del cliente: ");
+        JTextField rutField = new JTextField();
+
+        JLabel saldoLabel = new JLabel("Saldo inicial:");
+        SpinnerModel saldoModel = new SpinnerNumberModel(1, 1, 10000000, 1);
+        JSpinner saldoSpinner = new JSpinner(saldoModel);
+
+        JLabel tasaInteresLabel = new JLabel("Tasa de interés:");
+        SpinnerModel tasaInteresModel = new SpinnerNumberModel(1, 1, 20, 0.1);
+        JSpinner tasaInteresSpinner = new JSpinner(tasaInteresModel);
+
+        JLabel topeMinimoLabel = new JLabel("Tope mínimo:");
+        SpinnerModel topeMinimoModel = new SpinnerNumberModel(200000, 100000, 10000000, 50000);
+        JSpinner topeMinimoSpinner = new JSpinner(topeMinimoModel);
+
+        JButton btnIngresarCuentaDeAhorro = new JButton("Ingresar cuenta de ahorro");
+        JButton btnVolver = new JButton("Volver");
+
+        ingresarCuentaDeAhorroPanel.add(rutLabel);
+        ingresarCuentaDeAhorroPanel.add(rutField);
+        ingresarCuentaDeAhorroPanel.add(saldoLabel);
+        ingresarCuentaDeAhorroPanel.add(saldoSpinner);
+        ingresarCuentaDeAhorroPanel.add(tasaInteresLabel);
+        ingresarCuentaDeAhorroPanel.add(tasaInteresSpinner);
+        ingresarCuentaDeAhorroPanel.add(topeMinimoLabel);
+        ingresarCuentaDeAhorroPanel.add(topeMinimoSpinner);
+        ingresarCuentaDeAhorroPanel.add(btnIngresarCuentaDeAhorro);
+        ingresarCuentaDeAhorroPanel.add(btnVolver);
+
+        getContentPane().removeAll(); // Limpiar el contenido actual
+        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
+        getContentPane().add(ingresarCuentaDeAhorroPanel, BorderLayout.CENTER);
+
+        // Configurar el tamaño y hacer visible la ventana
+        setSize(500, 350);
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+
+        btnIngresarCuentaDeAhorro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String rut = rutField.getText();
+                int saldo = (Integer) saldoSpinner.getValue();
+                double tasaInteres = (Double) tasaInteresSpinner.getValue();
+                int topeMinimo = (Integer) saldoSpinner.getValue();
+                if(validarDatosIngresoCuentaDeAhorro(rut, saldo, tasaInteres, topeMinimo)){
+                    int idCliente = controladorClientes.encontrarIdClientePorRUT(rut);
+                    if (idCliente == -1){
+                        JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "Cliente de RUT + " + rut + "no encontrado, no se puede crear la cuenta", "Inserción fallida", JOptionPane.ERROR_MESSAGE);
+                        gestionCuentasDeAhorro();
+                    }
+                    else {
+                        if(controladorCuentasDeAhorro.crearCuentaDeAhorro(idCliente, saldo, tasaInteres, topeMinimo)){
+                            JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "Cuenta de ahorro ingresada con éxito para el cliente de RUT " + rut, "Inserción exitosa", JOptionPane.INFORMATION_MESSAGE);
+                            gestionCuentasDeAhorro();
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "No se pudo crear la cuenta de ahorro para el cliente de RUT " + rut, "Inserción fallida", JOptionPane.ERROR_MESSAGE);
+                            gestionCuentasDeAhorro();
+                        }
+                    }
+                }
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionClientes();
+            }
+        });
     }
 
     // Retorna true si las credenciales son válidas, de lo contrario, false.
@@ -572,6 +959,59 @@ public class InterfazBancoVirtual extends JFrame {
 
         if(!validarTelefono(fono)){
             mostrarMensajeErrorDeValidacion("Teléfono inválido");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validarDatosActualizacionCliente(String nombre, String apellido, int edad, String email, String fono) {
+        if(!validarNombre(nombre)){
+            mostrarMensajeErrorDeValidacion("Nombre inválido");
+            return false;
+        }
+
+        if(!validarApellido(apellido)){
+            mostrarMensajeErrorDeValidacion("Apellido inválido");
+            return false;
+        }
+
+        if(!validarEdad(edad)){
+            mostrarMensajeErrorDeValidacion("Edad inválida");
+            return false;
+        }
+
+        if(!validarEmail(email)){
+            mostrarMensajeErrorDeValidacion("Email inválido");
+            return false;
+        }
+
+        if(!validarTelefono(fono)){
+            mostrarMensajeErrorDeValidacion("Teléfono inválido");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validarDatosIngresoCuentaDeAhorro(String rut, int saldo, double tasaInteres, int topeMinimo) {
+        if(!validarRut(rut)){
+            mostrarMensajeErrorDeValidacion("RUT inválido");
+            return false;
+        }
+
+        if(!validarSaldo(saldo)){
+            mostrarMensajeErrorDeValidacion("Saldo inválido");
+            return false;
+        }
+
+        if(!validarTasaInteres(tasaInteres)){
+            mostrarMensajeErrorDeValidacion("Tasa de interés inválida");
+            return false;
+        }
+
+        if(!validarTopeMinimo(topeMinimo)){
+            mostrarMensajeErrorDeValidacion("Tope mínimo");
             return false;
         }
 

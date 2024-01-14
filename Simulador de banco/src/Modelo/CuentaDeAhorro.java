@@ -2,24 +2,24 @@ package Modelo;
 
 // Hereda de la clase CuentaBancaria
 public class CuentaDeAhorro extends CuentaBancaria {
-    private float tasaInteres;
+    private double tasaInteres;
     private int topeMinimo;
 
     public CuentaDeAhorro() {
 
     }
 
-    public CuentaDeAhorro(int idCliente, int saldo, float tasaInteres, int topeMinimo) {
+    public CuentaDeAhorro(int idCliente, int saldo, double tasaInteres, int topeMinimo) {
         super(idCliente, saldo);
         this.tasaInteres = tasaInteres;
         this.topeMinimo = topeMinimo;
     }
 
-    public float getTasaInteres() {
+    public double getTasaInteres() {
         return tasaInteres;
     }
 
-    public void setTasaInteres(int tasaInteres) {
+    public void setTasaInteres(double tasaInteres) {
         this.tasaInteres = tasaInteres;
     }
 

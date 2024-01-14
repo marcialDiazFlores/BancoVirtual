@@ -17,17 +17,17 @@ public class ControladorCuentasDeAhorro {
         this.cuentasDeAhorro = cuentaDeAhorroDAO.obtenerCuentasDeAhorro();
     }
 
-    public void crearCuentaDeAhorro(int idCliente, int saldo, float tasaInteres, int topeMinimo) {
+    public boolean crearCuentaDeAhorro(int idCliente, int saldo, double tasaInteres, int topeMinimo) {
         ControladorClientes controladorClientes = new ControladorClientes();
-        Cliente cliente = controladorClientes.encontrarClientePorId(idCliente);
         try {
             CuentaDeAhorro cuenta = new CuentaDeAhorro(idCliente, saldo, tasaInteres, topeMinimo);
             cuentasDeAhorro.add(cuenta);
             controladorClientes.agregarCuentaDeAhorro(cuenta);
-            cuentaDeAhorroDAO.agregarCuentaDeAhorro(cuenta);
+            return cuentaDeAhorroDAO.agregarCuentaDeAhorro(cuenta);
         } catch (SQLException e) {
             // Manejo de la excepción con mensaje de error
             System.err.println("No se pudo agregar la cuenta de ahorro. Error: " + e.getMessage());
+            return false;
         }
     }
 
@@ -82,13 +82,28 @@ public class ControladorCuentasDeAhorro {
                 CuentaDeAhorro cuenta = encontrarCuentaPorIdCliente(idCliente);
                 if (cuenta != null) {
                     cuentasDeAhorro.remove(cuenta);
-                    cuentaDeAhorroDAO.eliminarCuentaDeAhorro(cuenta);
+                    cuentaDeAhorroDAO.eliminarCuentaDeAhorro(cuenta.getIdCliente());
                     controladorClientes.eliminarCuentaDeAhorro(cuenta);
                 }
             }
         } catch (SQLException e) {
             // Manejo de la excepción con mensaje de error
             System.err.println("No se pudo eliminar la cuenta de ahorro de la base de datos. Error: " + e.getMessage());
+        }
+    }
+
+    public boolean eliminarCuentaDeAhorro(int id) {
+        try {
+            if (cuentaDeAhorroDAO.eliminarCuentaDeAhorro(id)){
+                return true;
+            }
+            else {
+                return false;
+            }
+        } catch (SQLException e) {
+            // Manejo de la excepción con mensaje de error
+            System.err.println("No se pudo eliminar la cuenta de ahorro de la base de datos. Error: " + e.getMessage());
+            return false;
         }
     }
 
@@ -139,8 +154,8 @@ public class ControladorCuentasDeAhorro {
         }
     }
 
-    public boolean tieneCuentaDeAhorro(Cliente cliente) {
-        return cuentaDeAhorroDAO.tieneCuentaDeAhorro(cliente.getId());
+    public boolean tieneCuentaDeAhorro(int idCliente) {
+        return cuentaDeAhorroDAO.tieneCuentaDeAhorro(idCliente);
     }
 
     public CuentaDeAhorro encontrarCuentaPorRUT(String rut, List<Cliente> listaClientes) {
