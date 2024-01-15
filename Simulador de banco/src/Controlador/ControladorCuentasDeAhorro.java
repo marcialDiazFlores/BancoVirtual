@@ -73,6 +73,25 @@ public class ControladorCuentasDeAhorro {
         }
     }
 
+    public Object[][] obtenerDatosCuentasDeAhorro() {
+        List<CuentaDeAhorro> listaCuentasDeAhorro = cuentaDeAhorroDAO.obtenerCuentasDeAhorro();
+        ControladorClientes controladorClientes = new ControladorClientes();
+        Object[][] data = new Object[listaCuentasDeAhorro.size()][7];
+
+        for (int i = 0; i < listaCuentasDeAhorro.size(); i++) {
+            CuentaDeAhorro cuenta = listaCuentasDeAhorro.get(i);
+            int id = cuenta.getIdCliente();
+            data[i][0] = id;
+            data[i][1] = controladorClientes.encontrarNombreClientePorID(id);
+            data[i][2] = controladorClientes.encontrarApellidoClientePorID(id);
+            data[i][3] = controladorClientes.encontrarRUTClientePorID(id);
+            data[i][4] = cuenta.getSaldo();
+            data[i][5] = truncar(cuenta.getTasaInteres());
+            data[i][6] = cuenta.getTopeMinimo();
+        }
+        return data;
+    }
+
     public void eliminarCuentaDeAhorro(String rut) {
         ControladorClientes controladorClientes = new ControladorClientes();
         try {
@@ -105,6 +124,10 @@ public class ControladorCuentasDeAhorro {
             System.err.println("No se pudo eliminar la cuenta de ahorro de la base de datos. Error: " + e.getMessage());
             return false;
         }
+    }
+
+    public double truncar(double n){
+        return Math.round(n * 10.0) / 10.0;
     }
 
     public void buscarCuentaDeAhorro(String rut){

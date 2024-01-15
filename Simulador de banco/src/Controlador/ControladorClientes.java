@@ -221,6 +221,36 @@ public class ControladorClientes {
         }
         return -1;
     }
+
+    public String encontrarNombreClientePorID(int idCliente) {
+        actualizarCuentas();
+        for (Cliente cliente : clientes) {
+            if (cliente.getId() == idCliente) {
+                return cliente.getNombre();
+            }
+        }
+        return "";
+    }
+
+    public String encontrarApellidoClientePorID(int idCliente) {
+        actualizarCuentas();
+        for (Cliente cliente : clientes) {
+            if (cliente.getId() == idCliente) {
+                return cliente.getApellido();
+            }
+        }
+        return "";
+    }
+
+    public String encontrarRUTClientePorID(int idCliente) {
+        actualizarCuentas();
+        for (Cliente cliente : clientes) {
+            if (cliente.getId() == idCliente) {
+                return cliente.getRut();
+            }
+        }
+        return "";
+    }
     public void actualizarCuentas() {
         ControladorCuentasDeAhorro controladorCuentasDeAhorro = new ControladorCuentasDeAhorro();
         ControladorCuentasCorrientes controladorCuentasCorrientes = new ControladorCuentasCorrientes();

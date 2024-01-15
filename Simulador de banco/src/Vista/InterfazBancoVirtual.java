@@ -791,14 +791,14 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
-        /*btnListaDeCuentasDeAhorro.addActionListener(new ActionListener() {
+        btnListaDeCuentasDeAhorro.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 listaDeCuentasDeAhorro();
             }
         });
 
-        btnActualizarCuentaDeAhorro.addActionListener(new ActionListener() {
+        /*btnActualizarCuentaDeAhorro.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 actualizarCuentaDeAhorro();
@@ -905,6 +905,84 @@ public class InterfazBancoVirtual extends JFrame {
                 gestionClientes();
             }
         });
+    }
+
+    private void listaDeCuentasDeAhorro() {
+        getContentPane().removeAll();
+        setTitle("Lista de cuentas de ahorro en el banco:");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(800, 350);
+
+        String[] columnas = {"ID de cuenta", "Nombre", "Apellido", "RUT", "Saldo", "Tasa de interés", "Tope mínimo para retiros"};
+
+        // Tabla de clientes
+
+        DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
+
+        JTable table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
+
+        Object[][] cuentas = controladorCuentasDeAhorro.obtenerDatosCuentasDeAhorro();
+
+        if (cuentas.length == 0) {
+            JOptionPane.showMessageDialog(this, "No hay cuentas de ahorro registradas en la base de datos", "Base de datos vacía", JOptionPane.ERROR_MESSAGE);
+            gestionClientes();
+        }
+
+        else {
+            for (Object[] cuenta : cuentas) {
+                tableModel.addRow(cuenta);
+            }
+
+            // Botón de actualizado
+            JButton btnActualizar = new JButton("Actualizar registros");
+            btnActualizar.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Lógica para actualizar la lista de clientes
+                    actualizarListaCuentasDeAhorro(tableModel);
+                }
+            });
+
+            // Panel para el botón volver
+            JPanel buttonPanel = new JPanel();
+            JButton btnVolver = new JButton("Volver");
+
+            buttonPanel.add(btnActualizar);
+            buttonPanel.add(btnVolver);
+
+            // Agregar el panel de botones a la parte inferior de la ventana
+            getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
+            btnVolver.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    gestionCuentasDeAhorro();
+                }
+            });
+
+            setLocationRelativeTo(null); // Centrar en la pantalla
+            setVisible(true);
+        }
+    }
+
+    private void actualizarListaCuentasDeAhorro(DefaultTableModel tableModel) {
+        // Lógica para obtener y actualizar la lista de clientes
+        Object[][] cuentas = controladorCuentasDeAhorro.obtenerDatosCuentasDeAhorro();
+
+        // Limpiar la tabla
+        tableModel.setRowCount(0);
+
+        if (cuentas.length == 0) {
+            JOptionPane.showMessageDialog(this, "No hay clientes en la base de datos", "Base de datos vacía", JOptionPane.ERROR_MESSAGE);
+            gestionClientes();
+        } else {
+            // Agregar los nuevos datos a la tabla
+            for (Object[] cuenta : cuentas) {
+                tableModel.addRow(cuenta);
+            }
+        }
     }
 
     // Retorna true si las credenciales son válidas, de lo contrario, false.
