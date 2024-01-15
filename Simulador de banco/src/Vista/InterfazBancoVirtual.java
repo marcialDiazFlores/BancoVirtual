@@ -680,7 +680,12 @@ public class InterfazBancoVirtual extends JFrame {
                     Object[] datos = controladorClientes.buscarCliente(rutField.getText());
                     if(datos.length > 0){
                         JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
-                        mostrarDatosYEliminar(datos);
+                        if(controladorCuentasDeAhorro.eliminarCuentaDeAhorro((Integer) datos[0])){
+                            JOptionPane.showMessageDialog(buscarClientePanel, "La cuenta de ahorro del cliente " + datos[1] + " " + datos[2] + "ha sido eliminada", "Eliminación de cuenta exitosa", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(buscarClientePanel, "No se pudo eliminar la cuenta corriente", "Eliminación fallida", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                     else {
                         JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
@@ -698,64 +703,6 @@ public class InterfazBancoVirtual extends JFrame {
                 gestionClientes();
             }
         });
-    }
-
-    private void mostrarDatosYEliminar(Object[] datos) {
-        getContentPane().removeAll();
-        setTitle("Datos del cliente:");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1400, 160);
-
-        // Texto "¿Eliminar cliente?"
-        JLabel eliminarLabel = new JLabel("¿Eliminar cliente?");
-        eliminarLabel.setHorizontalAlignment(JLabel.CENTER);
-        getContentPane().add(eliminarLabel, BorderLayout.NORTH);
-
-        String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono", "¿Cuenta de ahorro?", "¿Cuenta corriente?"};
-
-        // Datos
-        DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
-
-        JTable table = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(table);
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
-
-        tableModel.addRow(datos);
-
-        // Botones Sí y No
-        JPanel buttonPanel = new JPanel();
-        JButton btnSi = new JButton("Sí");
-        JButton btnNo = new JButton("No");
-
-        buttonPanel.add(btnSi);
-        buttonPanel.add(btnNo);
-
-        // Agregar el panel de botones a la parte inferior de la ventana
-        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-
-        btnSi.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (controladorClientes.eliminarCliente((Integer) datos[0])) {
-                    JOptionPane.showMessageDialog(getContentPane(), "Cliente eliminado de la base de datos", "Eliminación completada", JOptionPane.INFORMATION_MESSAGE);
-                    gestionClientes();
-                }
-                else {
-                    JOptionPane.showMessageDialog(getContentPane(), "No se pudo eliminar al cliente", "Eliminación fallida", JOptionPane.ERROR_MESSAGE);
-                    gestionClientes();
-                }
-            }
-        });
-
-        btnNo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
-            }
-        });
-
-        setLocationRelativeTo(null); // Centrar en la pantalla
-        setVisible(true);
     }
 
     private void gestionCuentasDeAhorro() {
@@ -811,14 +758,14 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
-        /*btnEliminarCuentaDeAhorro.addActionListener(new ActionListener() {
+        btnEliminarCuentaDeAhorro.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 eliminarCuentaDeAhorro();
             }
         });
 
-        btnBuscarCuentaDeAhorro.addActionListener(new ActionListener() {
+        /*btnBuscarCuentaDeAhorro.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 buscarCuentaDeAhorro();
@@ -1033,7 +980,7 @@ public class InterfazBancoVirtual extends JFrame {
         btnVolver.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gestionClientes();
+                gestionCuentasDeAhorro();
             }
         });
     }
@@ -1115,12 +1062,82 @@ public class InterfazBancoVirtual extends JFrame {
         btnVolver.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gestionClientes();
+                gestionCuentasDeAhorro();
             }
         });
 
         setLocationRelativeTo(null); // Centrar en la pantalla
         setVisible(true);
+    }
+
+    private void eliminarCuentaDeAhorro() {
+        setTitle("Eliminar cuenta de ahorro de un cliente");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
+
+        JLabel rutLabel = new JLabel("RUT del cliente:");
+        JTextField rutField = new JTextField();
+
+        JButton btnBuscar = new JButton("Buscar");
+        JButton btnVolver = new JButton("Volver");
+
+        buscarClientePanel.add(rutLabel);
+        buscarClientePanel.add(rutField);
+
+        buscarClientePanel.add(btnBuscar);
+        buscarClientePanel.add(btnVolver);
+
+        getContentPane().removeAll(); // Limpiar el contenido actual
+        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
+        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
+
+        // Configurar el tamaño y hacer visible la ventana
+        setSize(350, 250);
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+
+        btnBuscar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String rut = rutField.getText();
+                if(validarRut(rut)){
+                    Object[] datos = controladorClientes.buscarCliente(rut);
+                    if(datos.length > 0){
+                        if (!controladorClientes.hayCuentaAhorro(rut)) {
+                            JOptionPane.showMessageDialog(buscarClientePanel, "El cliente no tiene cuenta de ahorro para eliminar", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                            eliminarCuentaDeAhorro();
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
+                            if (controladorCuentasDeAhorro.eliminarCuentaDeAhorro((Integer) datos[0])){
+                                JOptionPane.showMessageDialog(buscarClientePanel, "Cuenta de ahorro eliminada", "Eliminación exitosa", JOptionPane.INFORMATION_MESSAGE);
+                                gestionCuentasDeAhorro();
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(buscarClientePanel, "No se pudo eliminar la cuenta de ahorro", "Eliminación fallida", JOptionPane.ERROR_MESSAGE);
+                                gestionCuentasDeAhorro();
+                            }
+                        }
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                        eliminarCuentaDeAhorro();
+                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(buscarClientePanel, "Ingrese un RUT válido", "RUT inválido", JOptionPane.ERROR_MESSAGE);
+                    eliminarCuentaDeAhorro();
+                }
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionClientes();
+            }
+        });
     }
 
     private boolean validarDatosActualizacionCuentaDeAhorro(int saldo, double tasaInteres, int topeMinimo) {

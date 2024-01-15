@@ -124,9 +124,9 @@ public class ControladorCuentasDeAhorro {
         }
     }
 
-    public boolean eliminarCuentaDeAhorro(int id) {
+    public boolean eliminarCuentaDeAhorro(int idCliente) {
         try {
-            if (cuentaDeAhorroDAO.eliminarCuentaDeAhorro(id)){
+            if (cuentaDeAhorroDAO.eliminarCuentaDeAhorro(idCliente)){
                 return true;
             }
             else {
