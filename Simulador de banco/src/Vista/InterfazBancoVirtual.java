@@ -22,6 +22,12 @@ public class InterfazBancoVirtual extends JFrame {
     private ControladorAdministradores controladorAdministradores;
 
     public InterfazBancoVirtual() {
+        // Inicializar controladores
+        controladorClientes = new ControladorClientes();
+        controladorCuentasDeAhorro = new ControladorCuentasDeAhorro();
+        controladorCuentasCorrientes = new ControladorCuentasCorrientes();
+        controladorAdministradores = new ControladorAdministradores();
+
         // Ventana de Login
         JFrame loginFrame = new JFrame("Bienvenido al BancoVirtual - Módulo de Administración");
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -798,14 +804,14 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
-        /*btnActualizarCuentaDeAhorro.addActionListener(new ActionListener() {
+        btnActualizarCuentaDeAhorro.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 actualizarCuentaDeAhorro();
             }
         });
 
-        btnEliminarCuentaDeAhorro.addActionListener(new ActionListener() {
+        /*btnEliminarCuentaDeAhorro.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 eliminarCuentaDeAhorro();
@@ -881,19 +887,21 @@ public class InterfazBancoVirtual extends JFrame {
                 if(validarDatosIngresoCuentaDeAhorro(rut, saldo, tasaInteres, topeMinimo)){
                     Object[] datos = controladorClientes.buscarCliente(rutField.getText());
                     if(datos.length > 0){
-                        JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
                         if(controladorClientes.hayCuentaAhorro(rutField.getText())) {
                             JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "El cliente de RUT " + rutField.getText() + " ya tiene una cuenta de ahorro", "Creación de cuenta fallida", JOptionPane.ERROR_MESSAGE);
+                            gestionCuentasDeAhorro();
                         }
                         else {
                             int idCliente = controladorClientes.encontrarIdClientePorRUT(rutField.getText());
                             if(controladorCuentasDeAhorro.crearCuentaDeAhorro(idCliente, (Integer) saldoSpinner.getValue(), (Double) tasaInteresSpinner.getValue(), (Integer) topeMinimoSpinner.getValue())) {
                                 JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "Cuenta de ahorro creada exitosamente para el cliente " + datos[1] + " " + datos[2], "Creación de cuenta exitosa", JOptionPane.INFORMATION_MESSAGE);
+                                gestionCuentasDeAhorro();
                             }
                         }
                     }
                     else {
                         JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                        gestionCuentasDeAhorro();
                     }
                 }
             }
@@ -965,6 +973,170 @@ public class InterfazBancoVirtual extends JFrame {
             setLocationRelativeTo(null); // Centrar en la pantalla
             setVisible(true);
         }
+    }
+
+    private void actualizarCuentaDeAhorro() {
+        setTitle("Actualizar cuenta de ahorro de un cliente");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
+
+        JLabel rutLabel = new JLabel("RUT del cliente:");
+        JTextField rutField = new JTextField();
+
+        JButton btnBuscar = new JButton("Buscar");
+        JButton btnVolver = new JButton("Volver");
+
+        buscarClientePanel.add(rutLabel);
+        buscarClientePanel.add(rutField);
+
+        buscarClientePanel.add(btnBuscar);
+        buscarClientePanel.add(btnVolver);
+
+        getContentPane().removeAll(); // Limpiar el contenido actual
+        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
+        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
+
+        // Configurar el tamaño y hacer visible la ventana
+        setSize(350, 250);
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+
+        btnBuscar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String rut = rutField.getText();
+                if(validarRut(rut)){
+                    Object[] datos = controladorClientes.buscarCliente(rut);
+                    if(datos.length > 0){
+                        if (!controladorClientes.hayCuentaAhorro(rut)) {
+                            JOptionPane.showMessageDialog(buscarClientePanel, "El cliente no tiene cuenta de ahorro para actualizar", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                            gestionCuentasDeAhorro();
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
+                            ventanaActualizacionCuentaDeAhorro(datos, rut);
+                        }
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                        gestionCuentasDeAhorro();
+                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(buscarClientePanel, "Ingrese un RUT válido", "RUT inválido", JOptionPane.ERROR_MESSAGE);
+                    gestionCuentasDeAhorro();
+                }
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionClientes();
+            }
+        });
+    }
+
+    private void ventanaActualizacionCuentaDeAhorro(Object[] datos, String rut) {
+        getContentPane().removeAll();
+        setTitle("Actualizar cuenta de ahorro");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(600, 300);
+
+        // Crear un panel para organizar la interfaz
+        JPanel ingresarDatosPanel = new JPanel(new BorderLayout());
+
+        // Etiqueta para el encabezado
+        JLabel tituloLabel = new JLabel("Actualizar cliente");
+        JLabel ingreseDatosLabel = new JLabel("Ingrese los nuevos datos de la cuenta");
+        tituloLabel.setHorizontalAlignment(JLabel.CENTER);
+        tituloLabel.setHorizontalAlignment(JLabel.CENTER);
+        ingreseDatosLabel.setHorizontalAlignment(JLabel.CENTER);
+        ingresarDatosPanel.add(tituloLabel, BorderLayout.NORTH);
+        ingresarDatosPanel.add(ingreseDatosLabel, BorderLayout.NORTH);
+
+        // Panel para los campos de actualización
+        JPanel actualizarCuentaDeAhorroPanel = new JPanel(new GridLayout(6, 2));
+
+        JLabel saldoLabel = new JLabel("Nuevo saldo:");
+        SpinnerModel saldoModel = new SpinnerNumberModel(1, 1, 10000000, 1);
+        JSpinner saldoSpinner = new JSpinner(saldoModel);
+
+        JLabel tasaInteresLabel = new JLabel("Tasa de interés:");
+        SpinnerModel tasaInteresModel = new SpinnerNumberModel(1, 1, 20, 0.1);
+        JSpinner tasaInteresSpinner = new JSpinner(tasaInteresModel);
+
+        JLabel topeMinimoLabel = new JLabel("Tope mínimo:");
+        SpinnerModel topeMinimoModel = new SpinnerNumberModel(200000, 100000, 10000000, 50000);
+        JSpinner topeMinimoSpinner = new JSpinner(topeMinimoModel);
+
+        actualizarCuentaDeAhorroPanel.add(saldoLabel);
+        actualizarCuentaDeAhorroPanel.add(saldoSpinner);
+        actualizarCuentaDeAhorroPanel.add(tasaInteresLabel);
+        actualizarCuentaDeAhorroPanel.add(tasaInteresSpinner);
+        actualizarCuentaDeAhorroPanel.add(topeMinimoLabel);
+        actualizarCuentaDeAhorroPanel.add(topeMinimoSpinner);
+
+        // Panel para los botones
+        JPanel buttonPanel = new JPanel();
+        JButton btnActualizar = new JButton("Actualizar");
+        JButton btnVolver = new JButton("Volver");
+
+        buttonPanel.add(btnActualizar);
+        buttonPanel.add(btnVolver);
+
+        // Agregar los paneles al panel principal
+        ingresarDatosPanel.add(actualizarCuentaDeAhorroPanel, BorderLayout.CENTER);
+        ingresarDatosPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Agregar el panel principal a la ventana
+        getContentPane().add(ingresarDatosPanel);
+
+        btnActualizar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(validarDatosActualizacionCuentaDeAhorro((Integer) saldoSpinner.getValue(), (Double) tasaInteresSpinner.getValue(), (Integer) topeMinimoSpinner.getValue())){
+                    if (controladorCuentasDeAhorro.actualizarCuentaDeAhorro(rut, (Integer) saldoSpinner.getValue(), (Double) tasaInteresSpinner.getValue(), (Integer) topeMinimoSpinner.getValue())) {
+                        JOptionPane.showMessageDialog(getContentPane(), "Los datos de la cuenta de ahorro del cliente " + datos[1] + " " + datos[2] + " han sido actualizados", "Actualización completada", JOptionPane.INFORMATION_MESSAGE);
+                        gestionCuentasDeAhorro();
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(getContentPane(), "No se pudieron actualizar los datos del cliente", "Actualización fallida", JOptionPane.ERROR_MESSAGE);
+                        gestionCuentasDeAhorro();
+                    }
+                }
+                else {
+                    gestionCuentasDeAhorro();
+                }
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionClientes();
+            }
+        });
+
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+    }
+
+    private boolean validarDatosActualizacionCuentaDeAhorro(int saldo, double tasaInteres, int topeMinimo) {
+        if (!validarSaldo(saldo)) {
+            JOptionPane.showMessageDialog(getContentPane(), "Saldo inválido", "Actualización fallida", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (!validarTasaInteres(tasaInteres)) {
+            JOptionPane.showMessageDialog(getContentPane(), "Tasa de interés inválida", "Actualización fallida", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (!validarTopeMinimo(topeMinimo)) {
+            JOptionPane.showMessageDialog(getContentPane(), "Tope mínimo inválido", "Actualización fallida", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
     }
 
     private void actualizarListaCuentasDeAhorro(DefaultTableModel tableModel) {

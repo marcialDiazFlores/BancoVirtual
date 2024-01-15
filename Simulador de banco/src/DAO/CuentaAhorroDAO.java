@@ -55,7 +55,7 @@ public class CuentaAhorroDAO implements interfazCuentaAhorroDAO {
         List<CuentaDeAhorro> cuentasDeAhorro = new ArrayList<>();
 
         try (Connection connection = conn.conectar()) {
-            String query = "SELECT * FROM cuentas_ahorro";
+            String query = "SELECT * FROM cuentas_ahorro ORDER BY id ASC";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query);
                  ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -108,17 +108,16 @@ public class CuentaAhorroDAO implements interfazCuentaAhorroDAO {
         }
     }
 
-    public boolean actualizarCuentaDeAhorro(int idCliente, int saldo, float tasaInteres, int topeMinimo) throws SQLException {
+    public boolean actualizarCuentaDeAhorro(int idCliente, int saldo, double tasaInteres, int topeMinimo) throws SQLException {
         try (Connection connection = conn.conectar()) {
-            String query = "UPDATE cuentas_ahorro SET saldo = ?, tasa_interes = ?, tope_minimo = ?, WHERE cliente_id = ?";
+            String query = "UPDATE cuentas_ahorro SET saldo = ?, tasa_interes = ?, tope_minimo = ? WHERE cliente_id = ?";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 // Se establecen los parámetros de la consulta
                 preparedStatement.setInt(1, saldo);
-                preparedStatement.setFloat(2, tasaInteres);
+                preparedStatement.setDouble(2, tasaInteres);
                 preparedStatement.setInt(3, topeMinimo);
                 preparedStatement.setInt(4, idCliente);
-
 
                 // Se ejecuta la consulta preparada
                 int filasActualizadas = preparedStatement.executeUpdate();
@@ -126,6 +125,7 @@ public class CuentaAhorroDAO implements interfazCuentaAhorroDAO {
                 return filasActualizadas > 0;
             }
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             throw new SQLException("Error al actualizar cliente", e);
         }
     }

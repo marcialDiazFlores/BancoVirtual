@@ -31,6 +31,18 @@ public class ControladorCuentasDeAhorro {
         }
     }
 
+    public boolean actualizarCuentaDeAhorro(String rut, int saldo, double tasaInteres, int topeMinimo) {
+        try {
+            ControladorClientes controladorClientes = new ControladorClientes();
+            int idCliente = controladorClientes.encontrarClientePorRUT(rut).getId();
+            return cuentaDeAhorroDAO.actualizarCuentaDeAhorro(idCliente, saldo, tasaInteres, topeMinimo);
+        } catch (SQLException e) {
+            // Manejo de la excepción con mensaje de error
+            System.err.println("No se pudo actualizar la cuenta de ahorro en la base de datos. Error: " + e.getMessage());
+            return false;
+        }
+    }
+
     public void mostrarDetallesCuentaDeAhorro(int i){
         CuentaDeAhorro cuenta = cuentasDeAhorro.get(i);
         if (cuenta != null) {
@@ -80,11 +92,12 @@ public class ControladorCuentasDeAhorro {
 
         for (int i = 0; i < listaCuentasDeAhorro.size(); i++) {
             CuentaDeAhorro cuenta = listaCuentasDeAhorro.get(i);
-            int id = cuenta.getIdCliente();
-            data[i][0] = id;
-            data[i][1] = controladorClientes.encontrarNombreClientePorID(id);
-            data[i][2] = controladorClientes.encontrarApellidoClientePorID(id);
-            data[i][3] = controladorClientes.encontrarRUTClientePorID(id);
+            int idCuenta = cuenta.getId();
+            int idCliente = cuenta.getIdCliente();
+            data[i][0] = idCuenta;
+            data[i][1] = controladorClientes.encontrarNombreClientePorID(idCliente);
+            data[i][2] = controladorClientes.encontrarApellidoClientePorID(idCliente);
+            data[i][3] = controladorClientes.encontrarRUTClientePorID(idCliente);
             data[i][4] = cuenta.getSaldo();
             data[i][5] = truncar(cuenta.getTasaInteres());
             data[i][6] = cuenta.getTopeMinimo();
