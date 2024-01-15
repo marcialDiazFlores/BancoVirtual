@@ -879,20 +879,21 @@ public class InterfazBancoVirtual extends JFrame {
                 double tasaInteres = (Double) tasaInteresSpinner.getValue();
                 int topeMinimo = (Integer) saldoSpinner.getValue();
                 if(validarDatosIngresoCuentaDeAhorro(rut, saldo, tasaInteres, topeMinimo)){
-                    int idCliente = controladorClientes.encontrarIdClientePorRUT(rut);
-                    if (idCliente == -1){
-                        JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "Cliente de RUT + " + rut + "no encontrado, no se puede crear la cuenta", "Inserción fallida", JOptionPane.ERROR_MESSAGE);
-                        gestionCuentasDeAhorro();
-                    }
-                    else {
-                        if(controladorCuentasDeAhorro.crearCuentaDeAhorro(idCliente, saldo, tasaInteres, topeMinimo)){
-                            JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "Cuenta de ahorro ingresada con éxito para el cliente de RUT " + rut, "Inserción exitosa", JOptionPane.INFORMATION_MESSAGE);
-                            gestionCuentasDeAhorro();
+                    Object[] datos = controladorClientes.buscarCliente(rutField.getText());
+                    if(datos.length > 0){
+                        JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
+                        if(controladorClientes.hayCuentaAhorro(rutField.getText())) {
+                            JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "El cliente de RUT " + rutField.getText() + " ya tiene una cuenta de ahorro", "Creación de cuenta fallida", JOptionPane.ERROR_MESSAGE);
                         }
                         else {
-                            JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "No se pudo crear la cuenta de ahorro para el cliente de RUT " + rut, "Inserción fallida", JOptionPane.ERROR_MESSAGE);
-                            gestionCuentasDeAhorro();
+                            int idCliente = controladorClientes.encontrarIdClientePorRUT(rutField.getText());
+                            if(controladorCuentasDeAhorro.crearCuentaDeAhorro(idCliente, (Integer) saldoSpinner.getValue(), (Double) tasaInteresSpinner.getValue(), (Integer) topeMinimoSpinner.getValue())) {
+                                JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "Cuenta de ahorro creada exitosamente para el cliente " + datos[1] + " " + datos[2], "Creación de cuenta exitosa", JOptionPane.INFORMATION_MESSAGE);
+                            }
                         }
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
