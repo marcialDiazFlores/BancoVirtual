@@ -1,17 +1,20 @@
 package Vista;
+
 import Controlador.*;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Locale;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
-import java.awt.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 import static Vista.BancoVirtual.*;
 
@@ -29,15 +32,22 @@ public class InterfazBancoVirtual extends JFrame {
         controladorAdministradores = new ControladorAdministradores();
 
         // Ventana de Login
-        JFrame loginFrame = new JFrame("Bienvenido al BancoVirtual - Módulo de Administración");
+        JFrame loginFrame = new JFrame("Iniciar sesión");
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        loginFrame.setSize(500, 350);
+
+        // Configurar la ventana para que se abra maximizada
+        loginFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        // Deshabilitar la capacidad de cambiar el tamaño de la ventana
+        loginFrame.setResizable(false);
+
         loginFrame.setLayout(new GridLayout(5, 1));
         loginFrame.setLocationRelativeTo(null);
 
         JLabel titleLabel = new JLabel("Bienvenido al BancoVirtual");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
+
         JLabel subtitleLabel = new JLabel("Módulo de administración de la base de datos");
         subtitleLabel.setHorizontalAlignment(JLabel.CENTER);
 
@@ -66,10 +76,46 @@ public class InterfazBancoVirtual extends JFrame {
         });
 
         loginFrame.add(titleLabel);
+
+        // Logo de la aplicación BancoVirtual
+        ImageIcon logo = crearIcono("/img/bancoVirtualLogo.png");
+        if (logo != null) {
+            // Escalar la imagen a un tamaño específico
+            ImageIcon scaledLogo = escalarImagen(logo, 150, 150);
+            JLabel logoLabel = new JLabel(scaledLogo);
+            logoLabel.setHorizontalAlignment(JLabel.CENTER);
+            loginFrame.setIconImage(scaledLogo.getImage());
+            loginFrame.add(logoLabel);
+        }
+
         loginFrame.add(subtitleLabel);
         loginFrame.add(loginPanel);
         loginFrame.add(loginButton);
         loginFrame.setVisible(true);
+    }
+
+    // Método para cargar la imagen desde un archivo
+    protected ImageIcon crearIcono(String ruta) {
+        try {
+            InputStream inputStream = getClass().getResourceAsStream(ruta);
+
+            if (inputStream != null) {
+                byte[] bytes = inputStream.readAllBytes();
+                return new ImageIcon(bytes);
+            } else {
+                System.err.println("No se pudo encontrar el archivo de imagen en la ruta " + ruta);
+                return null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private ImageIcon escalarImagen(ImageIcon icono, int ancho, int alto) {
+        Image imagen = icono.getImage();
+        Image imagenEscalada = imagen.getScaledInstance(ancho, alto, java.awt.Image.SCALE_SMOOTH);
+        return new ImageIcon(imagenEscalada);
     }
 
     private void abrirVentanaPrincipal() {
