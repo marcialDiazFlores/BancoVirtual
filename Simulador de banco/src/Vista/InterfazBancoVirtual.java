@@ -765,12 +765,12 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
-        /*btnBuscarCuentaDeAhorro.addActionListener(new ActionListener() {
+        btnBuscarCuentaDeAhorro.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 buscarCuentaDeAhorro();
             }
-        });*/
+        });
 
         btnVolver.addActionListener(new ActionListener() {
             @Override
@@ -1138,6 +1138,117 @@ public class InterfazBancoVirtual extends JFrame {
                 gestionClientes();
             }
         });
+    }
+
+    private void buscarCuentaDeAhorro() {
+        setTitle("Buscar cuenta de ahorro por RUT");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel buscarCuentaDeAhorroPanel = new JPanel(new GridLayout(7, 2));
+
+        JLabel rutLabel = new JLabel("RUT:");
+        JTextField rutField = new JTextField();
+
+        JButton btnBuscar = new JButton("Buscar");
+        JButton btnVolver = new JButton("Volver");
+
+        buscarCuentaDeAhorroPanel.add(rutLabel);
+        buscarCuentaDeAhorroPanel.add(rutField);
+
+        buscarCuentaDeAhorroPanel.add(btnBuscar);
+        buscarCuentaDeAhorroPanel.add(btnVolver);
+
+        getContentPane().removeAll(); // Limpiar el contenido actual
+        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
+        getContentPane().add(buscarCuentaDeAhorroPanel, BorderLayout.CENTER);
+
+        // Configurar el tamaño y hacer visible la ventana
+        setSize(350, 250);
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+
+        btnBuscar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(validarRut(rutField.getText())){
+                    if(controladorClientes.hayCuentaAhorro(rutField.getText())){
+                        Object[] datos = controladorCuentasDeAhorro.buscarCuentaDeAhorro(rutField.getText());
+                        if(datos.length > 0)
+                        {
+                            JOptionPane.showMessageDialog(buscarCuentaDeAhorroPanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
+                            mostrarDatosCuentaDeAhorro(datos);
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(buscarCuentaDeAhorroPanel, "No se encontró la cuenta de ahorro", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                            buscarCuentaDeAhorro();
+                        }
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(buscarCuentaDeAhorroPanel, "El cliente no tiene cuenta de ahorro", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(buscarCuentaDeAhorroPanel, "Ingrese un RUT válido", "RUT inválido", JOptionPane.ERROR_MESSAGE);
+                    buscarCuentaDeAhorro();
+                }
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionClientes();
+            }
+        });
+    }
+
+    private void mostrarDatosCuentaDeAhorro(Object[] datos) {
+        getContentPane().removeAll();
+        setTitle("Datos de la cuenta de ahorro:");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1500, 150);
+
+        String[] columnas = {"ID de cuenta", "Nombre", "Apellido", "RUT", "Saldo", "Tasa de interés", "Tope mínimo para retiros"};
+
+        // Datos
+
+        DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
+
+        JTable table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
+
+        tableModel.addRow(datos);
+
+        // Botón de actualizado
+        JButton btnActualizar = new JButton("Actualizar");
+        btnActualizar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Lógica para actualizar la lista de clientes
+                mostrarDatosCuentaDeAhorro(datos);
+            }
+        });
+
+        // Panel para el botón volver
+        JPanel buttonPanel = new JPanel();
+        JButton btnVolver = new JButton("Volver");
+
+        buttonPanel.add(btnActualizar);
+        buttonPanel.add(btnVolver);
+
+        // Agregar el panel de botones a la parte inferior de la ventana
+        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionCuentasDeAhorro();
+            }
+        });
+
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
     }
 
     private boolean validarDatosActualizacionCuentaDeAhorro(int saldo, double tasaInteres, int topeMinimo) {

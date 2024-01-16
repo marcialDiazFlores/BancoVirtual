@@ -2,6 +2,8 @@ package Controlador;
 
 import Modelo.*;
 import DAO.*;
+
+import javax.naming.ldap.Control;
 import java.sql.SQLException;
 
 import java.util.Collections;
@@ -143,28 +145,19 @@ public class ControladorCuentasDeAhorro {
         return Math.round(n * 10.0) / 10.0;
     }
 
-    public void buscarCuentaDeAhorro(String rut){
+    public Object[] buscarCuentaDeAhorro(String rut) {
         ControladorClientes controladorClientes = new ControladorClientes();
         Cliente cliente = controladorClientes.encontrarClientePorRUT(rut);
-        if (cliente != null){
-            System.out.println();
-            System.out.println("Cliente encontrado en la base de datos");
-            System.out.println("Nombre: " + cliente.getNombre() + ", Apellido: " + cliente.getApellido());
+        int idCliente = controladorClientes.encontrarIdClientePorRUT(rut);
+        CuentaDeAhorro cuenta = cuentaDeAhorroDAO.obtenerCuentaDeAhorro(idCliente);
 
-            CuentaDeAhorro cuenta = encontrarCuentaPorIdCliente(cliente.getId());
-
-            if (cuenta != null) {
-                System.out.println();
-                System.out.println("Detalles de la cuenta de ahorro:");
-                System.out.println();
-                System.out.println(cuenta.toString());
-            }
-            else {
-                System.out.println("El cliente no tiene cuenta de ahorro");
-            }
+        if (cuenta != null) {
+            Object[] datos = {cuenta.getId(), cliente.getNombre(), cliente.getApellido(), cliente.getRut(), cuenta.getSaldo(), truncar(cuenta.getTasaInteres()), cuenta.getTopeMinimo()};
+            return datos;
         }
         else {
-            System.out.println("Cliente no encontrado en la base de datos");
+            Object[] datos = {};
+            return datos;
         }
     }
 
@@ -236,4 +229,29 @@ public class ControladorCuentasDeAhorro {
     public List<CuentaDeAhorro> getCuentasDeAhorro() {
         return cuentasDeAhorro;
     }
+
+    /*public void buscarCuentaDeAhorro(String rut){
+        ControladorClientes controladorClientes = new ControladorClientes();
+        Cliente cliente = controladorClientes.encontrarClientePorRUT(rut);
+        if (cliente != null){
+            System.out.println();
+            System.out.println("Cliente encontrado en la base de datos");
+            System.out.println("Nombre: " + cliente.getNombre() + ", Apellido: " + cliente.getApellido());
+
+            CuentaDeAhorro cuenta = encontrarCuentaPorIdCliente(cliente.getId());
+
+            if (cuenta != null) {
+                System.out.println();
+                System.out.println("Detalles de la cuenta de ahorro:");
+                System.out.println();
+                System.out.println(cuenta.toString());
+            }
+            else {
+                System.out.println("El cliente no tiene cuenta de ahorro");
+            }
+        }
+        else {
+            System.out.println("Cliente no encontrado en la base de datos");
+        }
+    }*/
 }

@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import Modelo.Cliente;
 import Modelo.CuentaDeAhorro;
 import db.ConexionBDD;
 
@@ -128,6 +129,36 @@ public class CuentaAhorroDAO implements interfazCuentaAhorroDAO {
             System.out.println(e.getMessage());
             throw new SQLException("Error al actualizar cliente", e);
         }
+    }
+
+    public CuentaDeAhorro obtenerCuentaDeAhorro(int clienteId) {
+        CuentaDeAhorro cuentaDeAhorro = new CuentaDeAhorro();
+
+        try (Connection connection = conn.conectar()) {
+            String query = "SELECT * FROM cuentas_ahorro WHERE cliente_id = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                 preparedStatement.setInt(1, clienteId);
+                 ResultSet resultSet = preparedStatement.executeQuery();
+
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    int cliente_id = resultSet.getInt("cliente_id");
+                    int saldo = resultSet.getInt("saldo");
+                    float tasa_interes = resultSet.getFloat("tasa_interes");
+                    int tope_minimo = resultSet.getInt("tope_minimo");
+
+                    // Crea un objeto CuentaAhorro con los datos obtenidos de la base de datos
+                    cuentaDeAhorro = new CuentaDeAhorro(cliente_id, saldo, tasa_interes, tope_minimo);
+                    cuentaDeAhorro.setId(id);
+                    return cuentaDeAhorro;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return cuentaDeAhorro;
+        }
+        return cuentaDeAhorro;
     }
 
     public boolean tieneCuentaDeAhorro(int idCliente) {
