@@ -128,9 +128,9 @@ public class ControladorCuentasCorrientes {
         }
     }
 
-    public boolean eliminarCuentaCorriente(int id) {
+    public boolean eliminarCuentaCorriente(int idCliente) {
         try {
-            if (cuentaCorrienteDAO.eliminarCuentaCorriente(id)){
+            if (cuentaCorrienteDAO.eliminarCuentaCorriente(idCliente)){
                 return true;
             }
             else {
@@ -143,28 +143,19 @@ public class ControladorCuentasCorrientes {
         }
     }
 
-    public void buscarCuentaCorriente(String rut){
+    public Object[] buscarCuentaCorriente(String rut) {
         ControladorClientes controladorClientes = new ControladorClientes();
         Cliente cliente = controladorClientes.encontrarClientePorRUT(rut);
-        if (cliente != null){
-            System.out.println();
-            System.out.println("Cliente encontrado en la base de datos");
-            System.out.println("Nombre: " + cliente.getNombre() + ", Apellido: " + cliente.getApellido());
+        int idCliente = controladorClientes.encontrarIdClientePorRUT(rut);
+        CuentaCorriente cuenta = cuentaCorrienteDAO.obtenerCuentaCorriente(idCliente);
 
-            CuentaCorriente cuenta = encontrarCuentaPorIdCliente(cliente.getId());
-
-            if (cuenta != null) {
-                System.out.println();
-                System.out.println("Detalles de la cuenta corriente:");
-                System.out.println();
-                System.out.println(cuenta);
-            }
-            else {
-                System.out.println("El cliente no tiene cuenta corriente");
-            }
+        if (cuenta != null) {
+            Object[] datos = {cuenta.getId(), cliente.getNombre(), cliente.getApellido(), cliente.getRut(), cuenta.getSaldo(), cuenta.getSobregiro()};
+            return datos;
         }
         else {
-            System.out.println("Cliente no encontrado en la base de datos");
+            Object[] datos = {};
+            return datos;
         }
     }
 

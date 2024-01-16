@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Modelo.CuentaCorriente;
+import Modelo.CuentaDeAhorro;
 import db.ConexionBDD;
 
 public class CuentaCorrienteDAO implements interfazCuentaCorrienteDAO {
@@ -46,6 +47,35 @@ public class CuentaCorrienteDAO implements interfazCuentaCorrienteDAO {
         } catch (SQLException e) {
             throw new SQLException("Error al agregar cuenta corriente", e);
         }
+    }
+
+    public CuentaCorriente obtenerCuentaCorriente(int clienteId) {
+        CuentaCorriente cuentaCorriente = new CuentaCorriente();
+
+        try (Connection connection = conn.conectar()) {
+            String query = "SELECT * FROM cuentas_corrientes WHERE cliente_id = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setInt(1, clienteId);
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    int cliente_id = resultSet.getInt("cliente_id");
+                    int saldo = resultSet.getInt("saldo");
+                    int sobregiro = resultSet.getInt("sobregiro");
+
+                    // Crea un objeto CuentaAhorro con los datos obtenidos de la base de datos
+                    cuentaCorriente = new CuentaCorriente(cliente_id, saldo, sobregiro);
+                    cuentaCorriente.setId(id);
+                    return cuentaCorriente;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return cuentaCorriente;
+        }
+        return cuentaCorriente;
     }
 
     public List<CuentaCorriente> obtenerCuentasCorrientes() {
