@@ -97,6 +97,18 @@ public class ControladorCuentasCorrientes {
         return data;
     }
 
+    public boolean actualizarCuentaCorriente(String rut, int saldo, int sobregiro) {
+        try {
+            ControladorClientes controladorClientes = new ControladorClientes();
+            int idCliente = controladorClientes.encontrarClientePorRUT(rut).getId();
+            return cuentaCorrienteDAO.actualizarCuentaCorriente(idCliente, saldo, sobregiro);
+        } catch (SQLException e) {
+            // Manejo de la excepción con mensaje de error
+            System.err.println("No se pudo actualizar la cuenta corriente en la base de datos. Error: " + e.getMessage());
+            return false;
+        }
+    }
+
     public void eliminarCuentaCorriente(String rut) {
         ControladorClientes controladorClientes = new ControladorClientes();
         try {

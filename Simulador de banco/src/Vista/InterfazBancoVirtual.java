@@ -1002,7 +1002,7 @@ public class InterfazBancoVirtual extends JFrame {
         JPanel ingresarDatosPanel = new JPanel(new BorderLayout());
 
         // Etiqueta para el encabezado
-        JLabel tituloLabel = new JLabel("Actualizar cliente");
+        JLabel tituloLabel = new JLabel("Actualizar cuenta de ahorro");
         JLabel ingreseDatosLabel = new JLabel("Ingrese los nuevos datos de la cuenta");
         tituloLabel.setHorizontalAlignment(JLabel.CENTER);
         tituloLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -1304,14 +1304,14 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
-        /*btnActualizarCuentaCorriente.addActionListener(new ActionListener() {
+        btnActualizarCuentaCorriente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 actualizarCuentaCorriente();
             }
         });
 
-        btnEliminarCuentaCorriente.addActionListener(new ActionListener() {
+        /*btnEliminarCuentaCorriente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 eliminarCuentaCorriente();
@@ -1331,6 +1331,145 @@ public class InterfazBancoVirtual extends JFrame {
                 abrirVentanaPrincipal();
             }
         });
+    }
+
+    private void actualizarCuentaCorriente() {
+        setTitle("Actualizar cuenta corriente de un cliente");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
+
+        JLabel rutLabel = new JLabel("RUT del cliente:");
+        JTextField rutField = new JTextField();
+
+        JButton btnBuscar = new JButton("Buscar");
+        JButton btnVolver = new JButton("Volver");
+
+        buscarClientePanel.add(rutLabel);
+        buscarClientePanel.add(rutField);
+
+        buscarClientePanel.add(btnBuscar);
+        buscarClientePanel.add(btnVolver);
+
+        getContentPane().removeAll(); // Limpiar el contenido actual
+        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
+        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
+
+        // Configurar el tamaño y hacer visible la ventana
+        setSize(350, 250);
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
+
+        btnBuscar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String rut = rutField.getText();
+                if(validarRut(rut)){
+                    Object[] datos = controladorClientes.buscarCliente(rut);
+                    if(datos.length > 0){
+                        if (!controladorClientes.hayCuentaCorriente(rut)) {
+                            JOptionPane.showMessageDialog(buscarClientePanel, "El cliente no tiene cuenta corriente para actualizar", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
+                            ventanaActualizacionCuentaCorriente(datos, rut);
+                        }
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(buscarClientePanel, "Ingrese un RUT válido", "RUT inválido", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionCuentasCorrientes();
+            }
+        });
+    }
+
+    private void ventanaActualizacionCuentaCorriente(Object[] datos, String rut) {
+        getContentPane().removeAll();
+        setTitle("Actualizar cuenta corriente");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(600, 300);
+
+        // Crear un panel para organizar la interfaz
+        JPanel ingresarDatosPanel = new JPanel(new BorderLayout());
+
+        // Etiqueta para el encabezado
+        JLabel tituloLabel = new JLabel("Actualizar cuenta corriente");
+        JLabel ingreseDatosLabel = new JLabel("Ingrese los nuevos datos de la cuenta");
+        tituloLabel.setHorizontalAlignment(JLabel.CENTER);
+        tituloLabel.setHorizontalAlignment(JLabel.CENTER);
+        ingreseDatosLabel.setHorizontalAlignment(JLabel.CENTER);
+        ingresarDatosPanel.add(tituloLabel, BorderLayout.NORTH);
+        ingresarDatosPanel.add(ingreseDatosLabel, BorderLayout.NORTH);
+
+        // Panel para los campos de actualización
+        JPanel actualizarCuentaCorrientePanel = new JPanel(new GridLayout(6, 2));
+
+        JLabel saldoLabel = new JLabel("Nuevo saldo:");
+        SpinnerModel saldoModel = new SpinnerNumberModel(1, 1, 10000000, 1);
+        JSpinner saldoSpinner = new JSpinner(saldoModel);
+
+        JLabel sobregiroLabel = new JLabel("Nuevo cupo de sobregiro:");
+        SpinnerModel sobregiroModel = new SpinnerNumberModel(200000, 100000, 10000000, 50000);
+        JSpinner sobregiroSpinner = new JSpinner(sobregiroModel);
+
+        actualizarCuentaCorrientePanel.add(saldoLabel);
+        actualizarCuentaCorrientePanel.add(saldoSpinner);
+        actualizarCuentaCorrientePanel.add(sobregiroLabel);
+        actualizarCuentaCorrientePanel.add(sobregiroSpinner);
+
+        // Panel para los botones
+        JPanel buttonPanel = new JPanel();
+        JButton btnActualizar = new JButton("Actualizar");
+        JButton btnVolver = new JButton("Volver");
+
+        buttonPanel.add(btnActualizar);
+        buttonPanel.add(btnVolver);
+
+        // Agregar los paneles al panel principal
+        ingresarDatosPanel.add(actualizarCuentaCorrientePanel, BorderLayout.CENTER);
+        ingresarDatosPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Agregar el panel principal a la ventana
+        getContentPane().add(ingresarDatosPanel);
+
+        btnActualizar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(validarDatosActualizacionCuentaCorriente((Integer) saldoSpinner.getValue(), (Integer) sobregiroSpinner.getValue())){
+                    if (controladorCuentasCorrientes.actualizarCuentaCorriente(rut, (Integer) saldoSpinner.getValue(), (Integer) sobregiroSpinner.getValue())) {
+                        JOptionPane.showMessageDialog(getContentPane(), "Los datos de la cuenta de ahorro del cliente " + datos[1] + " " + datos[2] + " han sido actualizados", "Actualización completada", JOptionPane.INFORMATION_MESSAGE);
+                        gestionCuentasCorrientes();
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(getContentPane(), "No se pudieron actualizar los datos del cliente", "Actualización fallida", JOptionPane.ERROR_MESSAGE);
+                        gestionCuentasCorrientes();
+                    }
+                }
+                else {
+                    gestionCuentasCorrientes();
+                }
+            }
+        });
+
+        btnVolver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gestionCuentasCorrientes();
+            }
+        });
+
+        setLocationRelativeTo(null); // Centrar en la pantalla
+        setVisible(true);
     }
 
     private void ingresarCuentaCorriente() {
@@ -1495,6 +1634,18 @@ public class InterfazBancoVirtual extends JFrame {
         }
         if (!validarTopeMinimo(topeMinimo)) {
             JOptionPane.showMessageDialog(getContentPane(), "Tope mínimo inválido", "Actualización fallida", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validarDatosActualizacionCuentaCorriente(int saldo, int sobregiro) {
+        if (!validarSaldo(saldo)) {
+            JOptionPane.showMessageDialog(getContentPane(), "Saldo inválido", "Actualización fallida", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (!validarSobregiro(sobregiro)) {
+            JOptionPane.showMessageDialog(getContentPane(), "Monto de sobregiro inválido", "Actualización fallida", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         return true;

@@ -52,7 +52,7 @@ public class CuentaCorrienteDAO implements interfazCuentaCorrienteDAO {
         List<CuentaCorriente> cuentasCorrientes = new ArrayList<>();
 
         try (Connection connection = conn.conectar()) {
-            String query = "SELECT * FROM cuentas_corrientes";
+            String query = "SELECT * FROM cuentas_corrientes ORDER BY id ASC";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query);
                  ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -76,6 +76,27 @@ public class CuentaCorrienteDAO implements interfazCuentaCorrienteDAO {
         }
 
         return cuentasCorrientes;
+    }
+
+    public boolean actualizarCuentaCorriente(int idCliente, int saldo, int sobregiro) throws SQLException {
+        try (Connection connection = conn.conectar()) {
+            String query = "UPDATE cuentas_corrientes SET saldo = ?, sobregiro = ? WHERE cliente_id = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                // Se establecen los parámetros de la consulta
+                preparedStatement.setInt(1, saldo);
+                preparedStatement.setInt(2, sobregiro);
+                preparedStatement.setInt(3, idCliente);
+
+                // Se ejecuta la consulta preparada
+                int filasActualizadas = preparedStatement.executeUpdate();
+
+                return filasActualizadas > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new SQLException("Error al actualizar cliente", e);
+        }
     }
 
     public boolean eliminarCuentaCorriente(int idCliente) throws SQLException {
