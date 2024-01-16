@@ -42,7 +42,7 @@ public class InterfazBancoVirtual extends JFrame {
         subtitleLabel.setHorizontalAlignment(JLabel.CENTER);
 
         JPanel loginPanel = new JPanel(new GridLayout(3, 2));
-        JLabel rutLabel = new JLabel("RUT:");
+        JLabel rutLabel = new JLabel("RUT (con puntos y guión):");
         JTextField rutField = new JTextField();
         JLabel passwordLabel = new JLabel("Contraseña:");
         JPasswordField passwordField = new JPasswordField();
@@ -224,7 +224,7 @@ public class InterfazBancoVirtual extends JFrame {
         JLabel emailLabel = new JLabel("Email:");
         JTextField emailField = new JTextField();
 
-        JLabel rutLabel = new JLabel("RUT:");
+        JLabel rutLabel = new JLabel("RUT (con puntos y guión):");
         JTextField rutField = new JTextField();
 
         JLabel fonoLabel = new JLabel("Teléfono:");
@@ -263,9 +263,11 @@ public class InterfazBancoVirtual extends JFrame {
                 if(validarDatosIngresoCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
                     if(controladorClientes.crearCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
                         JOptionPane.showMessageDialog(ingresarClientePanel, "Cliente ingresado con éxito", "Inserción exitosa", JOptionPane.INFORMATION_MESSAGE);
+                        gestionClientes();
                     }
                     else {
                         JOptionPane.showMessageDialog(ingresarClientePanel, "No se pudo agregar al cliente", "Inserción fallida", JOptionPane.ERROR_MESSAGE);
+                        gestionClientes();
                     }
                 }
             }
@@ -364,7 +366,7 @@ public class InterfazBancoVirtual extends JFrame {
 
         JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel rutLabel = new JLabel("RUT del cliente:");
+        JLabel rutLabel = new JLabel("RUT del cliente (con puntos y guión):");
         JTextField rutField = new JTextField();
 
         JButton btnBuscar = new JButton("Buscar");
@@ -549,7 +551,7 @@ public class InterfazBancoVirtual extends JFrame {
 
         JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel rutLabel = new JLabel("RUT:");
+        JLabel rutLabel = new JLabel("RUT (con puntos y guión):");
         JTextField rutField = new JTextField();
 
         JButton btnBuscar = new JButton("Buscar");
@@ -659,16 +661,16 @@ public class InterfazBancoVirtual extends JFrame {
 
         JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel rutLabel = new JLabel("RUT del cliente:");
+        JLabel rutLabel = new JLabel("RUT del cliente (con puntos y guión):");
         JTextField rutField = new JTextField();
 
-        JButton btnBuscar = new JButton("Buscar");
+        JButton btnEliminar = new JButton("Eliminar");
         JButton btnVolver = new JButton("Volver");
 
         buscarClientePanel.add(rutLabel);
         buscarClientePanel.add(rutField);
 
-        buscarClientePanel.add(btnBuscar);
+        buscarClientePanel.add(btnEliminar);
         buscarClientePanel.add(btnVolver);
 
         getContentPane().removeAll(); // Limpiar el contenido actual
@@ -680,7 +682,7 @@ public class InterfazBancoVirtual extends JFrame {
         setLocationRelativeTo(null); // Centrar en la pantalla
         setVisible(true);
 
-        btnBuscar.addActionListener(new ActionListener() {
+        btnEliminar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(validarRut(rutField.getText())){
@@ -688,7 +690,8 @@ public class InterfazBancoVirtual extends JFrame {
                     if(datos.length > 0){
                         JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
                         if(controladorClientes.eliminarCliente((Integer) datos[0])){
-                            JOptionPane.showMessageDialog(buscarClientePanel, "Cliente  " + datos[1] + " " + datos[2] + " ha sido eliminado exitosamente", "Eliminación de cuenta exitosa", JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(buscarClientePanel, "El cliente " + datos[1] + " " + datos[2] + " ha sido eliminado exitosamente", "Eliminación de cuenta exitosa", JOptionPane.INFORMATION_MESSAGE);
+                            gestionClientes();
                         }
                         else{
                             JOptionPane.showMessageDialog(buscarClientePanel, "No se pudo eliminar al cliente", "Eliminación fallida", JOptionPane.ERROR_MESSAGE);
@@ -793,7 +796,7 @@ public class InterfazBancoVirtual extends JFrame {
 
         JPanel ingresarCuentaDeAhorroPanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel rutLabel = new JLabel("Ingrese RUT del cliente: ");
+        JLabel rutLabel = new JLabel("Ingrese RUT del cliente (con puntos y guión): ");
         JTextField rutField = new JTextField();
 
         JLabel saldoLabel = new JLabel("Saldo inicial:");
@@ -843,7 +846,6 @@ public class InterfazBancoVirtual extends JFrame {
                     if(datos.length > 0){
                         if(controladorClientes.hayCuentaAhorro(rutField.getText())) {
                             JOptionPane.showMessageDialog(ingresarCuentaDeAhorroPanel, "El cliente de RUT " + rutField.getText() + " ya tiene una cuenta de ahorro", "Creación de cuenta fallida", JOptionPane.ERROR_MESSAGE);
-                            gestionCuentasDeAhorro();
                         }
                         else {
                             int idCliente = controladorClientes.encontrarIdClientePorRUT(rutField.getText());
@@ -864,7 +866,7 @@ public class InterfazBancoVirtual extends JFrame {
         btnVolver.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gestionClientes();
+                gestionCuentasDeAhorro();
             }
         });
     }
@@ -935,7 +937,7 @@ public class InterfazBancoVirtual extends JFrame {
 
         JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel rutLabel = new JLabel("RUT del cliente:");
+        JLabel rutLabel = new JLabel("RUT del cliente (con puntos y guión):");
         JTextField rutField = new JTextField();
 
         JButton btnBuscar = new JButton("Buscar");
@@ -965,7 +967,6 @@ public class InterfazBancoVirtual extends JFrame {
                     if(datos.length > 0){
                         if (!controladorClientes.hayCuentaAhorro(rut)) {
                             JOptionPane.showMessageDialog(buscarClientePanel, "El cliente no tiene cuenta de ahorro para actualizar", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
-                            gestionCuentasDeAhorro();
                         }
                         else {
                             JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
@@ -1083,7 +1084,7 @@ public class InterfazBancoVirtual extends JFrame {
 
         JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel rutLabel = new JLabel("RUT del cliente:");
+        JLabel rutLabel = new JLabel("RUT del cliente (con puntos y guión):");
         JTextField rutField = new JTextField();
 
         JButton btnBuscar = new JButton("Buscar");
@@ -1142,7 +1143,7 @@ public class InterfazBancoVirtual extends JFrame {
         btnVolver.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gestionClientes();
+                gestionCuentasDeAhorro();
             }
         });
     }
@@ -1153,7 +1154,7 @@ public class InterfazBancoVirtual extends JFrame {
 
         JPanel buscarCuentaDeAhorroPanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel rutLabel = new JLabel("RUT:");
+        JLabel rutLabel = new JLabel("RUT (con puntos y guión):");
         JTextField rutField = new JTextField();
 
         JButton btnBuscar = new JButton("Buscar");
@@ -1178,20 +1179,26 @@ public class InterfazBancoVirtual extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(validarRut(rutField.getText())){
-                    if(controladorClientes.hayCuentaAhorro(rutField.getText())){
-                        Object[] datos = controladorCuentasDeAhorro.buscarCuentaDeAhorro(rutField.getText());
-                        if(datos.length > 0)
-                        {
-                            JOptionPane.showMessageDialog(buscarCuentaDeAhorroPanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
-                            mostrarDatosCuentaDeAhorro(datos);
+                    Object[] datosCliente = controladorClientes.buscarCliente(rutField.getText());
+                    if(datosCliente.length > 0) {
+                        if(controladorClientes.hayCuentaAhorro(rutField.getText())){
+                            Object[] datos = controladorCuentasDeAhorro.buscarCuentaDeAhorro(rutField.getText());
+                            if(datos.length > 0)
+                            {
+                                JOptionPane.showMessageDialog(buscarCuentaDeAhorroPanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
+                                mostrarDatosCuentaDeAhorro(datos);
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(buscarCuentaDeAhorroPanel, "No se encontró la cuenta de ahorro", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                                buscarCuentaDeAhorro();
+                            }
                         }
                         else {
-                            JOptionPane.showMessageDialog(buscarCuentaDeAhorroPanel, "No se encontró la cuenta de ahorro", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
-                            buscarCuentaDeAhorro();
+                            JOptionPane.showMessageDialog(buscarCuentaDeAhorroPanel, "El cliente no tiene cuenta de ahorro", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                     else {
-                        JOptionPane.showMessageDialog(buscarCuentaDeAhorroPanel, "El cliente no tiene cuenta de ahorro", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(buscarCuentaDeAhorroPanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
                     }
                 }
                 else {
@@ -1204,7 +1211,7 @@ public class InterfazBancoVirtual extends JFrame {
         btnVolver.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gestionClientes();
+                gestionCuentasDeAhorro();
             }
         });
     }
@@ -1339,7 +1346,7 @@ public class InterfazBancoVirtual extends JFrame {
 
         JPanel ingresarCuentaCorrientePanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel rutLabel = new JLabel("Ingrese RUT del cliente: ");
+        JLabel rutLabel = new JLabel("Ingrese RUT del cliente (con puntos y guión): ");
         JTextField rutField = new JTextField();
 
         JLabel saldoLabel = new JLabel("Saldo inicial:");
@@ -1472,7 +1479,7 @@ public class InterfazBancoVirtual extends JFrame {
 
         JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel rutLabel = new JLabel("RUT del cliente:");
+        JLabel rutLabel = new JLabel("RUT del cliente (con puntos y guión):");
         JTextField rutField = new JTextField();
 
         JButton btnBuscar = new JButton("Buscar");
@@ -1580,7 +1587,7 @@ public class InterfazBancoVirtual extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if(validarDatosActualizacionCuentaCorriente((Integer) saldoSpinner.getValue(), (Integer) sobregiroSpinner.getValue())){
                     if (controladorCuentasCorrientes.actualizarCuentaCorriente(rut, (Integer) saldoSpinner.getValue(), (Integer) sobregiroSpinner.getValue())) {
-                        JOptionPane.showMessageDialog(getContentPane(), "Los datos de la cuenta de ahorro del cliente " + datos[1] + " " + datos[2] + " han sido actualizados", "Actualización completada", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(getContentPane(), "Los datos de la cuenta corriente del cliente " + datos[1] + " " + datos[2] + " han sido actualizados", "Actualización completada", JOptionPane.INFORMATION_MESSAGE);
                         gestionCuentasCorrientes();
                     }
                     else {
@@ -1629,7 +1636,7 @@ public class InterfazBancoVirtual extends JFrame {
 
         JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel rutLabel = new JLabel("RUT del cliente:");
+        JLabel rutLabel = new JLabel("RUT del cliente (con puntos y guión)");
         JTextField rutField = new JTextField();
 
         JButton btnBuscar = new JButton("Buscar");
@@ -1696,7 +1703,7 @@ public class InterfazBancoVirtual extends JFrame {
 
         JPanel buscarCuentaCorrientePanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel rutLabel = new JLabel("RUT:");
+        JLabel rutLabel = new JLabel("RUT (con puntos y guión):");
         JTextField rutField = new JTextField();
 
         JButton btnBuscar = new JButton("Buscar");
@@ -1721,20 +1728,26 @@ public class InterfazBancoVirtual extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(validarRut(rutField.getText())){
-                    if(controladorClientes.hayCuentaCorriente(rutField.getText())){
-                        Object[] datos = controladorCuentasCorrientes.buscarCuentaCorriente(rutField.getText());
-                        if(datos.length > 0)
-                        {
-                            JOptionPane.showMessageDialog(buscarCuentaCorrientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
-                            mostrarDatosCuentaCorriente(datos);
+                    Object[] datosCliente = controladorClientes.buscarCliente(rutField.getText());
+                    if(datosCliente.length > 0) {
+                        if(controladorClientes.hayCuentaCorriente(rutField.getText())){
+                            Object[] datos = controladorCuentasCorrientes.buscarCuentaCorriente(rutField.getText());
+                            if(datos.length > 0)
+                            {
+                                JOptionPane.showMessageDialog(buscarCuentaCorrientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
+                                mostrarDatosCuentaCorriente(datos);
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(buscarCuentaCorrientePanel, "No se encontró la cuenta corriente", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                                buscarCuentaCorriente();
+                            }
                         }
                         else {
-                            JOptionPane.showMessageDialog(buscarCuentaCorrientePanel, "No se encontró la cuenta corriente", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
-                            buscarCuentaCorriente();
+                            JOptionPane.showMessageDialog(buscarCuentaCorrientePanel, "El cliente no tiene cuenta corriente", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                     else {
-                        JOptionPane.showMessageDialog(buscarCuentaCorrientePanel, "El cliente no tiene cuenta corriente", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(buscarCuentaCorrientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
                     }
                 }
                 else {
