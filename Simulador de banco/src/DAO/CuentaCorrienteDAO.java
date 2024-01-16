@@ -11,7 +11,7 @@ public class CuentaCorrienteDAO implements interfazCuentaCorrienteDAO {
     ConexionBDD conn = new ConexionBDD();
 
     @Override
-    public void agregarCuentaCorriente(CuentaCorriente cuenta) throws SQLException {
+    public boolean agregarCuentaCorriente(CuentaCorriente cuenta) throws SQLException {
         try (Connection connection = conn.conectar()) {
 
             String query = "INSERT INTO cuentas_corrientes (id, cliente_id, saldo, sobregiro) VALUES (DEFAULT, ?, ?, ?)";
@@ -37,6 +37,7 @@ public class CuentaCorrienteDAO implements interfazCuentaCorrienteDAO {
 
                         // Setea el ID en el objeto Cliente
                         cuenta.setId(idGenerado);
+                        return true;
                     } else {
                         throw new SQLException("Error al obtener el ID de la cuenta corriente");
                     }

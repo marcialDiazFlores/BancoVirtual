@@ -17,17 +17,22 @@ public class ControladorCuentasCorrientes {
         this.cuentasCorrientes = cuentaCorrienteDAO.obtenerCuentasCorrientes();
     }
 
-    public void crearCuentaCorriente(int idCliente, int saldo, int sobregiro) {
+    public boolean crearCuentaCorriente(int idCliente, int saldo, int sobregiro) {
         ControladorClientes controladorClientes = new ControladorClientes();
-        Cliente cliente = controladorClientes.encontrarClientePorId(idCliente);
         try {
             CuentaCorriente cuenta = new CuentaCorriente(idCliente, saldo, sobregiro);
             cuentasCorrientes.add(cuenta);
             controladorClientes.agregarCuentaCorriente(cuenta);
-            cuentaCorrienteDAO.agregarCuentaCorriente(cuenta);
+            if(cuentaCorrienteDAO.agregarCuentaCorriente(cuenta)) {
+                return true;
+            }
+            else {
+                return false;
+            }
         } catch (SQLException e) {
             // Manejo de la excepción con mensaje de error
             System.err.println("No se pudo agregar la cuenta corriente. Error: " + e.getMessage());
+            return false;
         }
     }
 
@@ -71,6 +76,25 @@ public class ControladorCuentasCorrientes {
             }
             System.out.println();
         }
+    }
+
+    public Object[][] obtenerDatosCuentasCorrientes() {
+        List<CuentaCorriente> listaCuentasCorrientes = cuentaCorrienteDAO.obtenerCuentasCorrientes();
+        ControladorClientes controladorClientes = new ControladorClientes();
+        Object[][] data = new Object[listaCuentasCorrientes.size()][6];
+
+        for (int i = 0; i < listaCuentasCorrientes.size(); i++) {
+            CuentaCorriente cuenta = listaCuentasCorrientes.get(i);
+            int idCuenta = cuenta.getId();
+            int idCliente = cuenta.getIdCliente();
+            data[i][0] = idCuenta;
+            data[i][1] = controladorClientes.encontrarNombreClientePorID(idCliente);
+            data[i][2] = controladorClientes.encontrarApellidoClientePorID(idCliente);
+            data[i][3] = controladorClientes.encontrarRUTClientePorID(idCliente);
+            data[i][4] = cuenta.getSaldo();
+            data[i][5] = cuenta.getSobregiro();
+        }
+        return data;
     }
 
     public void eliminarCuentaCorriente(String rut) {
