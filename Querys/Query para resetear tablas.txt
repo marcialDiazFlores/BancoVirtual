@@ -1,0 +1,30 @@
+DELETE FROM cuentas_ahorro;
+DELETE FROM cuentas_corrientes;
+DELETE FROM clientes;
+
+INSERT INTO clientes (Nombre, Apellido, Edad, Email, RUT, Fono) VALUES
+    ('Juan', 'Pérez', 25, 'juan.perez@gmail.com', '12.345.678-9', '+56987654321'),
+    ('Ana', 'González', 32, 'ana.gonzalez@yahoo.com', '15.678.901-2', '+56991234567'),
+    ('Carlos', 'Ramírez', 45, 'carlos.ramirez@outlook.com', '18.901.234-5', '+56998765432'),
+    ('Luisa', 'Martínez', 28, 'luisa.martinez@hotmail.com', '19.234.567-8', '+56987654321'),
+    ('Felipe', 'Sánchez', 22, 'felipe.sanchez@icloud.com', '19.567.890-1', '+56991234567'),
+    ('Camila', 'López', 38, 'camila.lopez@protonmail.com', '19.890.123-4', '+56998765432'),
+    ('Martín', 'Gómez', 29, 'martin.gomez@live.com', '20.234.567-8', '+56987654321'),
+    ('Valentina', 'Rodríguez', 33, 'valentina.rodriguez@gmail.com', '20.567.890-1', '+56991234567'),
+    ('Pedro', 'Hernández', 27, 'pedro.hernandez@yahoo.com', '20.890.123-4', '+56998765432'),
+    ('Mónica', 'Torres', 40, 'monica.torres@hotmail.com', '20.123.456-7', '+56987654321');
+
+INSERT INTO cuentas_ahorro (cliente_id, saldo, tasa_interes, tope_minimo) VALUES
+    ((SELECT id FROM clientes WHERE Nombre = 'Juan' AND Apellido = 'Pérez'), 800000, 8.7, 450000),
+    ((SELECT id FROM clientes WHERE Nombre = 'Ana' AND Apellido = 'González'), 500000, 5.2, 250000),
+    ((SELECT id FROM clientes WHERE Nombre = 'Carlos' AND Apellido = 'Ramírez'), 1200000, 12.3, 750000),
+    ((SELECT id FROM clientes WHERE Nombre = 'Luisa' AND Apellido = 'Martínez'), 600000, 6.8, 300000),
+    ((SELECT id FROM clientes WHERE Nombre = 'Felipe' AND Apellido = 'Sánchez'), 900000, 9.5, 500000);
+
+INSERT INTO cuentas_corrientes (cliente_id, saldo, sobregiro) VALUES
+    (6, 950000, 450000),
+    (7, 125000, 250000),
+    (8, 1360000, 350000),
+    (9, 550500, 300000),
+    (10, 750000, 500000);
+
