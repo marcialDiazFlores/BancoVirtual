@@ -446,7 +446,10 @@ public class InterfazBancoVirtual extends JFrame {
         btnIngresarCliente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ingresarCliente();
+                contenidoPanel.removeAll();
+                contenidoPanel.add(ingresarCliente());
+                contenidoPanel.revalidate(); // Revalida el contenido
+                contenidoPanel.repaint();
             }
         });
 
@@ -486,56 +489,127 @@ public class InterfazBancoVirtual extends JFrame {
         });
     }
 
-    private void ingresarCliente() {
+    private JPanel ingresarCliente() {
         setTitle("Ingresar cliente");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel ingresarClientePanel = new JPanel(new GridLayout(7, 2));
+        JPanel ingresarClientePanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        GridBagConstraints gbcTitulo = new GridBagConstraints();
+        GridBagConstraints gbcBoton = new GridBagConstraints();
+        gbc.insets = new Insets(5, 20, 5, 5); // Márgenes
+
+        // Título
+        JLabel titleLabel = new JLabel("Ingresar cliente a la base de datos");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        gbcTitulo.gridx = 0;
+        gbcTitulo.gridy = 0;
+        gbcTitulo.gridwidth = 2; // Ocupa dos columnas
+        gbcTitulo.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+        gbcTitulo.insets = new Insets(200, 5, 30, 5);
+        ingresarClientePanel.add(titleLabel, gbcTitulo);
 
         JLabel nombreLabel = new JLabel("Nombre:");
         JTextField nombreField = new JTextField();
+        nombreField.setPreferredSize(new Dimension(150, 25));
 
         JLabel apellidoLabel = new JLabel("Apellido:");
         JTextField apellidoField = new JTextField();
+        apellidoField.setPreferredSize(new Dimension(150, 25));
 
         JLabel edadLabel = new JLabel("Edad:");
-        SpinnerModel edadModel = new SpinnerNumberModel(18, 1, 110, 1); // Rango de edad de 1 a 120, inicio en 18
+        SpinnerModel edadModel = new SpinnerNumberModel(18, 1, 110, 1);
         JSpinner edadSpinner = new JSpinner(edadModel);
 
         JLabel emailLabel = new JLabel("Email:");
         JTextField emailField = new JTextField();
+        emailField.setPreferredSize(new Dimension(150, 25));
 
         JLabel rutLabel = new JLabel("RUT (con puntos y guión):");
         JTextField rutField = new JTextField();
+        rutField.setPreferredSize(new Dimension(150, 25));
 
         JLabel fonoLabel = new JLabel("Teléfono:");
         JTextField fonoField = new JTextField();
+        fonoField.setPreferredSize(new Dimension(150, 25));
 
         JButton btnIngresarCliente = new JButton("Ingresar cliente");
-        JButton btnVolver = new JButton("Volver");
 
-        ingresarClientePanel.add(nombreLabel);
-        ingresarClientePanel.add(nombreField);
-        ingresarClientePanel.add(apellidoLabel);
-        ingresarClientePanel.add(apellidoField);
-        ingresarClientePanel.add(edadLabel);
-        ingresarClientePanel.add(edadSpinner);
-        ingresarClientePanel.add(emailLabel);
-        ingresarClientePanel.add(emailField);
-        ingresarClientePanel.add(rutLabel);
-        ingresarClientePanel.add(rutField);
-        ingresarClientePanel.add(fonoLabel);
-        ingresarClientePanel.add(fonoField);
-        ingresarClientePanel.add(btnIngresarCliente);
-        ingresarClientePanel.add(btnVolver);
+        // Nombre
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(nombreLabel, gbc);
 
-        getContentPane().removeAll(); // Limpiar el contenido actual
-        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
-        getContentPane().add(ingresarClientePanel, BorderLayout.CENTER);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(nombreField, gbc);
 
-        // Configurar el tamaño y hacer visible la ventana
-        setSize(500, 350);
-        setLocationRelativeTo(null); // Centrar en la pantalla
+        // Apellido
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(apellidoLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(apellidoField, gbc);
+
+        // Edad
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(edadLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(edadSpinner, gbc);
+
+        // Email
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(emailLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(emailField, gbc);
+
+        // RUT
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(rutLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(rutField, gbc);
+
+        // Teléfono
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(fonoLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(fonoField, gbc);
+
+        // Botón Ingresar cliente
+        gbcBoton.gridx = 0;
+        gbcBoton.gridy = 7;
+        gbcBoton.gridwidth = 2; // Ocupa dos columnas
+        gbcBoton.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+        gbcBoton.insets = new Insets(40, 5, 30, 5);
+        ingresarClientePanel.add(btnIngresarCliente, gbcBoton);
+
         setVisible(true);
 
         btnIngresarCliente.addActionListener(new ActionListener() {
@@ -554,13 +628,9 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
-            }
-        });
+        return ingresarClientePanel;
     }
+
 
     private void listaDeClientes() {
         getContentPane().removeAll();
