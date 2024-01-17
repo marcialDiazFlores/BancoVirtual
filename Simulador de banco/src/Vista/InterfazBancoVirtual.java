@@ -41,14 +41,144 @@ public class InterfazBancoVirtual extends JFrame {
         // Deshabilitar la capacidad de cambiar el tamaño de la ventana
         loginFrame.setResizable(false);
 
+        // Usar GridBagLayout para mayor flexibilidad en la disposición de los componentes
+        loginFrame.setLayout(new GridBagLayout());
+
+        // Configurar GridBagConstraints para el título
+        GridBagConstraints gbcTitulo = new GridBagConstraints();
+        gbcTitulo.gridx = 0;
+        gbcTitulo.gridy = 0;
+        gbcTitulo.insets = new Insets(0, 0, 55, 0); // Márgenes inferiores
+
+        JLabel titleLabel = new JLabel("Bienvenido a BancoVirtual");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        titleLabel.setHorizontalAlignment(JLabel.CENTER);
+        loginFrame.add(titleLabel, gbcTitulo);
+
+        // Configurar GridBagConstraints para el logo
+        GridBagConstraints gbcLogo = new GridBagConstraints();
+        gbcLogo.gridx = 0;
+        gbcLogo.gridy = 1;
+        gbcLogo.insets = new Insets(0, 0, 55, 0); // Márgenes inferiores
+
+        // Logo de la aplicación BancoVirtual
+        ImageIcon logo = crearIcono("/img/bancoVirtualLogo.png");
+        if (logo != null) {
+            // Escalar la imagen a un tamaño específico
+            ImageIcon scaledLogo = escalarImagen(logo, 150, 150);
+            JLabel logoLabel = new JLabel(scaledLogo);
+            logoLabel.setHorizontalAlignment(JLabel.CENTER);
+            loginFrame.setIconImage(scaledLogo.getImage());
+            loginFrame.add(logoLabel, gbcLogo);
+        }
+
+        // Configurar GridBagConstraints para el subtítulo
+        GridBagConstraints gbcSubtitle = new GridBagConstraints();
+        gbcSubtitle.gridx = 0;
+        gbcSubtitle.gridy = 2;
+        gbcSubtitle.insets = new Insets(0, 0, 50, 0); // Márgenes inferiores
+
+        JLabel subtitleLabel = new JLabel("Administración de la base de datos del banco");
+        subtitleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        subtitleLabel.setHorizontalAlignment(JLabel.CENTER);
+        loginFrame.add(subtitleLabel, gbcSubtitle);
+
+        // Configurar GridBagConstraints para el panel de login
+        GridBagConstraints gbcLoginPanel = new GridBagConstraints();
+        gbcLoginPanel.gridx = 0;
+        gbcLoginPanel.gridy = 3;
+        gbcLoginPanel.insets = new Insets(0, 0, 100, 0); // Márgenes inferiores
+
+        JPanel loginPanel = new JPanel(new GridBagLayout());  // Cambiar a GridBagLayout para mayor flexibilidad
+
+// Configurar GridBagConstraints para el campo de RUT
+        GridBagConstraints gbcRutLabel = new GridBagConstraints();
+        gbcRutLabel.gridx = 0;
+        gbcRutLabel.gridy = 0;
+        gbcRutLabel.anchor = GridBagConstraints.EAST; // Alinear a la derecha
+        gbcRutLabel.insets = new Insets(10, 0, 0, 0);
+
+        JLabel rutLabel = new JLabel("Ingrese su RUT (con puntos y guión):");
+        rutLabel.setPreferredSize(new Dimension(400, 50));
+        rutLabel.setFont(new Font("Arial", Font.PLAIN, 18));
+        loginPanel.add(rutLabel, gbcRutLabel);
+
+        GridBagConstraints gbcRutField = new GridBagConstraints();
+        gbcRutField.gridx = 1;
+        gbcRutField.gridy = 0;
+        gbcRutField.fill = GridBagConstraints.HORIZONTAL; // Hacer que el campo ocupe el espacio horizontal disponible
+        gbcRutField.insets = new Insets(27, 0, 15, 0); // Añadir márgenes a la izquierda
+
+        JTextField rutField = new JTextField();
+        rutField.setFont(new Font("Arial", Font.PLAIN, 15));
+        rutField.setPreferredSize(new Dimension(400, 40));  // Establecer el tamaño preferido
+        loginPanel.add(rutField, gbcRutField);
+
+// Configurar GridBagConstraints para el campo de contraseña
+        GridBagConstraints gbcPasswordLabel = new GridBagConstraints();
+        gbcPasswordLabel.gridx = 0;
+        gbcPasswordLabel.gridy = 1;
+        gbcPasswordLabel.anchor = GridBagConstraints.EAST; // Alinear a la derecha
+        gbcPasswordLabel.insets = new Insets(-8, 0, 0, 0);
+
+        JLabel passwordLabel = new JLabel("Ingrese su contraseña:");
+        passwordLabel.setPreferredSize(new Dimension(400, 50));
+        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 18));
+        loginPanel.add(passwordLabel, gbcPasswordLabel);
+
+        GridBagConstraints gbcPasswordField = new GridBagConstraints();
+        gbcPasswordField.gridx = 1;
+        gbcPasswordField.gridy = 1;
+        gbcPasswordField.fill = GridBagConstraints.HORIZONTAL; // Hacer que el campo ocupe el espacio horizontal disponible
+        gbcPasswordField.insets = new Insets(0, 0, 0, 0); // Añadir márgenes a la izquierda
+
+        JPasswordField passwordField = new JPasswordField();
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 15));
+        passwordField.setPreferredSize(new Dimension(400, 40));  // Establecer el tamaño preferido
+        loginPanel.add(passwordField, gbcPasswordField);
+
+        loginFrame.add(loginPanel, gbcLoginPanel);
+
+        // Configurar GridBagConstraints para el botón de login
+        GridBagConstraints gbcLoginButton = new GridBagConstraints();
+        gbcLoginButton.gridx = 0;
+        gbcLoginButton.gridy = 4;
+        gbcLoginButton.insets = new Insets(-30, 0, 0, 0);
+
+        JButton loginButton = new JButton("Iniciar sesión");
+        loginButton.setPreferredSize(new Dimension(130, 50));
+        loginButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        loginButton.addActionListener(e -> {
+            if (validarCredenciales(rutField.getText(), String.valueOf(passwordField.getPassword()))) {
+                mostrarMensajeAccesoExitoso();
+                loginFrame.dispose();
+                abrirVentanaPrincipal();
+            }
+        });
+        loginFrame.add(loginButton, gbcLoginButton);
+
+        // Hacer visible la ventana
+        loginFrame.setVisible(true);
+
+        /*// Ventana de Login
+        JFrame loginFrame = new JFrame("Iniciar sesión");
+        loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Configurar la ventana para que se abra maximizada
+        loginFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        // Deshabilitar la capacidad de cambiar el tamaño de la ventana
+        loginFrame.setResizable(false);
+
         loginFrame.setLayout(new GridLayout(5, 1));
         loginFrame.setLocationRelativeTo(null);
 
-        JLabel titleLabel = new JLabel("Bienvenido al BancoVirtual");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        JLabel titleLabel = new JLabel("Bienvenido a BancoVirtual");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
 
-        JLabel subtitleLabel = new JLabel("Módulo de administración de la base de datos");
+        JLabel subtitleLabel = new JLabel("Módulo de administración de la base de datos del banco");
+        subtitleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         subtitleLabel.setHorizontalAlignment(JLabel.CENTER);
 
         JPanel loginPanel = new JPanel(new GridLayout(3, 2));
@@ -91,7 +221,7 @@ public class InterfazBancoVirtual extends JFrame {
         loginFrame.add(subtitleLabel);
         loginFrame.add(loginPanel);
         loginFrame.add(loginButton);
-        loginFrame.setVisible(true);
+        loginFrame.setVisible(true);*/
     }
 
     // Método para cargar la imagen desde un archivo
