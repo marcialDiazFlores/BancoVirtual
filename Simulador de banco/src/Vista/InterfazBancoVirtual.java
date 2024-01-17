@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -490,124 +492,176 @@ public class InterfazBancoVirtual extends JFrame {
     }
 
     private JPanel ingresarCliente() {
-        setTitle("Ingresar cliente");
+        setTitle("Gestión de clientes");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel ingresarClientePanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         GridBagConstraints gbcTitulo = new GridBagConstraints();
         GridBagConstraints gbcBoton = new GridBagConstraints();
+        GridBagConstraints gbcImagen = new GridBagConstraints();
         gbc.insets = new Insets(5, 20, 5, 5); // Márgenes
+
+        int titleFontSize = 25;
+        int labelFontSize = 20;
+        int fieldFontSize = 15;
+        int fieldWidth = 300;
+        int fieldHeight = 40;
+        int btnWidth = 100;
+        int btnHeight = 32;
+        int btnFontSize = 16;
+
+        // Crear un borde compuesto
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(), // Borde grabado para efecto visual
+                BorderFactory.createEmptyBorder(-50, 10, 10, 10) // Márgenes internos
+        );
+
+        // Añadir un margen superior externo para mover el recuadro hacia abajo
+        Border outerMargin = new EmptyBorder(60, 0, 0, 0);
+        Border titledBorder = BorderFactory.createCompoundBorder(
+                outerMargin,
+                border
+        );
+
+        ingresarClientePanel.setBorder(titledBorder);
 
         // Título
         JLabel titleLabel = new JLabel("Ingresar cliente a la base de datos");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, titleFontSize));
         gbcTitulo.gridx = 0;
         gbcTitulo.gridy = 0;
         gbcTitulo.gridwidth = 2; // Ocupa dos columnas
         gbcTitulo.anchor = GridBagConstraints.CENTER; // Centrado horizontal
-        gbcTitulo.insets = new Insets(200, 5, 30, 5);
+        gbcTitulo.insets = new Insets(100, 5, 20, 5);
         ingresarClientePanel.add(titleLabel, gbcTitulo);
 
+        ImageIcon imagen = crearIcono("/img/agregarCliente.png");
+        ImageIcon scaledImagen = escalarImagen(imagen, 100, 100);
+        JLabel labelImagen = new JLabel(scaledImagen);
+
+        gbcImagen.insets = new Insets(0, 10, 50, 10);
+        gbcImagen.anchor = GridBagConstraints.CENTER;
+        gbcImagen.gridwidth = 2;
+        gbcImagen.gridx = 0;
+        gbcImagen.gridy = 1;
+
         JLabel nombreLabel = new JLabel("Nombre:");
+        nombreLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         JTextField nombreField = new JTextField();
-        nombreField.setPreferredSize(new Dimension(150, 25));
+        nombreField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        nombreField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
         JLabel apellidoLabel = new JLabel("Apellido:");
+        apellidoLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         JTextField apellidoField = new JTextField();
-        apellidoField.setPreferredSize(new Dimension(150, 25));
+        apellidoField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        apellidoField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
         JLabel edadLabel = new JLabel("Edad:");
+        edadLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         SpinnerModel edadModel = new SpinnerNumberModel(18, 1, 110, 1);
         JSpinner edadSpinner = new JSpinner(edadModel);
+        edadSpinner.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        edadSpinner.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
         JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         JTextField emailField = new JTextField();
-        emailField.setPreferredSize(new Dimension(150, 25));
+        emailField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        emailField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
         JLabel rutLabel = new JLabel("RUT (con puntos y guión):");
+        rutLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         JTextField rutField = new JTextField();
-        rutField.setPreferredSize(new Dimension(150, 25));
+        rutField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        rutField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
         JLabel fonoLabel = new JLabel("Teléfono:");
+        fonoLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         JTextField fonoField = new JTextField();
-        fonoField.setPreferredSize(new Dimension(150, 25));
+        fonoField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        fonoField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
-        JButton btnIngresarCliente = new JButton("Ingresar cliente");
+        JButton btnIngresarCliente = new JButton("Ingresar");
+        btnIngresarCliente.setPreferredSize(new Dimension(btnWidth, btnHeight));
+        btnIngresarCliente.setFont(new Font("Arial", Font.PLAIN, btnFontSize));
+
+        ingresarClientePanel.add(labelImagen, gbcImagen);
 
         // Nombre
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(nombreLabel, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(nombreField, gbc);
 
         // Apellido
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(apellidoLabel, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(apellidoField, gbc);
 
         // Edad
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(edadLabel, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(edadSpinner, gbc);
 
         // Email
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(emailLabel, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(emailField, gbc);
 
         // RUT
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(rutLabel, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(rutField, gbc);
 
         // Teléfono
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(fonoLabel, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         gbc.anchor = GridBagConstraints.WEST;
         ingresarClientePanel.add(fonoField, gbc);
 
         // Botón Ingresar cliente
         gbcBoton.gridx = 0;
-        gbcBoton.gridy = 7;
+        gbcBoton.gridy = 8;
         gbcBoton.gridwidth = 2; // Ocupa dos columnas
         gbcBoton.anchor = GridBagConstraints.CENTER; // Centrado horizontal
-        gbcBoton.insets = new Insets(40, 5, 30, 5);
+        gbcBoton.insets = new Insets(50, 5, 30, 5);
         ingresarClientePanel.add(btnIngresarCliente, gbcBoton);
 
         setVisible(true);
@@ -618,11 +672,9 @@ public class InterfazBancoVirtual extends JFrame {
                 if(validarDatosIngresoCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
                     if(controladorClientes.crearCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
                         JOptionPane.showMessageDialog(ingresarClientePanel, "Cliente ingresado con éxito", "Inserción exitosa", JOptionPane.INFORMATION_MESSAGE);
-                        gestionClientes();
                     }
                     else {
                         JOptionPane.showMessageDialog(ingresarClientePanel, "No se pudo agregar al cliente", "Inserción fallida", JOptionPane.ERROR_MESSAGE);
-                        gestionClientes();
                     }
                 }
             }
