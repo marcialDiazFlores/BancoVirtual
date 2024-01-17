@@ -10,6 +10,8 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -433,7 +435,17 @@ public class InterfazBancoVirtual extends JFrame {
 
         botonesPanel.add(btnVolver, gbcBtnVolver);
 
-        JPanel contenidoPanel = new JPanel();
+        JPanel contenidoPanel = new JPanel(new GridBagLayout());
+
+        ImageIcon imagenCliente = crearIcono("/img/clientIcon.png");
+        ImageIcon scaledImagenCliente = escalarImagen(imagenCliente, 500, 500);
+        JLabel labelImagenCliente = new JLabel(scaledImagenCliente);
+
+        GridBagConstraints gbcImagenCliente = new GridBagConstraints();
+        gbcImagenCliente.gridx = 0;
+        gbcImagenCliente.gridy = 0;
+        gbcImagenCliente.insets = new Insets(0, 0, 0, 0);
+        contenidoPanel.add(labelImagenCliente, gbcImagenCliente);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, botonesPanel, contenidoPanel);
         splitPane.setDividerLocation(600); // Ancho inicial del panel izquierdo
@@ -458,14 +470,20 @@ public class InterfazBancoVirtual extends JFrame {
         btnListaDeClientes.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                listaDeClientes();
+                contenidoPanel.removeAll();
+                contenidoPanel.add(listaDeClientes());
+                contenidoPanel.revalidate(); // Revalida el contenido
+                contenidoPanel.repaint();
             }
         });
 
         btnActualizarCliente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                actualizarCliente();
+                contenidoPanel.removeAll();
+                contenidoPanel.add(actualizarCliente());
+                contenidoPanel.revalidate(); // Revalida el contenido
+                contenidoPanel.repaint();
             }
         });
 
@@ -518,7 +536,7 @@ public class InterfazBancoVirtual extends JFrame {
         );
 
         // Añadir un margen superior externo para mover el recuadro hacia abajo
-        Border outerMargin = new EmptyBorder(60, 0, 0, 0);
+        Border outerMargin = new EmptyBorder(0, 0, 0, 0);
         Border titledBorder = BorderFactory.createCompoundBorder(
                 outerMargin,
                 border
@@ -684,11 +702,38 @@ public class InterfazBancoVirtual extends JFrame {
     }
 
 
-    private void listaDeClientes() {
-        getContentPane().removeAll();
-        setTitle("Lista de clientes del banco:");
+    private JPanel listaDeClientes() {
+
+        JPanel listaDeClientesPanel = new JPanel(new GridBagLayout());
+
+        GridBagConstraints gbcTitle = new GridBagConstraints();
+        GridBagConstraints gbcTable = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
+
+        setTitle("Gestión de clientes:");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 350);
+
+        JLabel title = new JLabel("Clientes que hay en el banco actualmente:");
+        title.setFont(new Font("Arial", Font.BOLD, 20));
+        gbcTitle.gridx = 0;
+        gbcTitle.gridy = 0;
+        gbcTitle.insets = new Insets(0, 0, 20, 0);
+
+        listaDeClientesPanel.add(title, gbcTitle);
+
+        ImageIcon imagen = crearIcono("/img/listaClientes.png");
+        ImageIcon scaledImagen = escalarImagen(imagen, 60, 60);
+        JLabel labelImagen = new JLabel(scaledImagen);
+
+        GridBagConstraints gbcImagen = new GridBagConstraints();
+
+        gbcImagen.insets = new Insets(0, 10, 50, 10);
+        gbcImagen.anchor = GridBagConstraints.CENTER;
+        gbcImagen.gridwidth = 2;
+        gbcImagen.gridx = 0;
+        gbcImagen.gridy = 1;
+
+        listaDeClientesPanel.add(labelImagen, gbcImagen);
 
         String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono", "¿Cuenta de ahorro?", "¿Cuenta corriente?"};
 
@@ -697,20 +742,40 @@ public class InterfazBancoVirtual extends JFrame {
         DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
 
         JTable table = new JTable(tableModel);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        int[] anchos = {25, 80, 80, 50, 220, 100, 110, 120, 120};
+        for (int i = 0; i < columnas.length; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+        }
+
         JScrollPane scrollPane = new JScrollPane(table);
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
+        gbcTable.gridx = 0;
+        gbcTable.gridy = 2;
+        listaDeClientesPanel.add(scrollPane, gbcTable);
 
         Object[][] clientes = controladorClientes.obtenerDatosClientes();
 
         if (clientes.length == 0) {
             JOptionPane.showMessageDialog(this, "No hay clientes en la base de datos", "Base de datos vacía", JOptionPane.ERROR_MESSAGE);
-            gestionClientes();
         }
 
         else {
             for (Object[] cliente : clientes) {
                 tableModel.addRow(cliente);
             }
+
+            // Establecer un ancho preferido para la tabla
+            int anchoTotal = 0;
+            for (int ancho : anchos) {
+                anchoTotal += ancho;
+            }
+
+            // Establecer un alto preferido para la tabla
+            int altoTotal = table.getRowHeight() * tableModel.getRowCount();
+
+            table.setPreferredScrollableViewportSize(new Dimension(anchoTotal, altoTotal));
+            table.setFont(new Font("Arial", Font.PLAIN, 14));
 
             // Botón de actualizado
             JButton btnActualizar = new JButton("Actualizar registros");
@@ -719,29 +784,33 @@ public class InterfazBancoVirtual extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     // Lógica para actualizar la lista de clientes
                     actualizarListaClientes(tableModel);
+                    // Establecer un alto preferido para la tabla
+                    int altoTotal = table.getRowHeight() * tableModel.getRowCount();
+
+                    // Establecer un ancho preferido para la tabla
+                    int anchoTotal = 0;
+                    for (int ancho : anchos) {
+                        anchoTotal += ancho;
+                    }
+
+                    table.setPreferredScrollableViewportSize(new Dimension(anchoTotal, altoTotal));
+                    table.setFont(new Font("Arial", Font.PLAIN, 14));
                 }
             });
 
-            // Panel para el botón volver
-            JPanel buttonPanel = new JPanel();
-            JButton btnVolver = new JButton("Volver");
+            gbcBtn.gridx = 0;
+            gbcBtn.gridy = 3;
+            gbcBtn.insets = new Insets(50, 0, 0, 0);
 
-            buttonPanel.add(btnActualizar);
-            buttonPanel.add(btnVolver);
+            btnActualizar.setPreferredSize(new Dimension(175, 32));
+            btnActualizar.setFont(new Font("Arial", Font.PLAIN, 14));
 
-            // Agregar el panel de botones a la parte inferior de la ventana
-            getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+            listaDeClientesPanel.add(btnActualizar, gbcBtn);
 
-            btnVolver.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    gestionClientes();
-                }
-            });
-
-            setLocationRelativeTo(null); // Centrar en la pantalla
             setVisible(true);
         }
+
+        return listaDeClientesPanel;
     }
 
     // Método para actualizar la lista de clientes
@@ -763,7 +832,7 @@ public class InterfazBancoVirtual extends JFrame {
         }
     }
 
-    private void actualizarCliente() {
+    private JPanel actualizarCliente() {
         setTitle("Actualizar datos de un cliente");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -773,21 +842,11 @@ public class InterfazBancoVirtual extends JFrame {
         JTextField rutField = new JTextField();
 
         JButton btnBuscar = new JButton("Buscar");
-        JButton btnVolver = new JButton("Volver");
 
         buscarClientePanel.add(rutLabel);
         buscarClientePanel.add(rutField);
 
         buscarClientePanel.add(btnBuscar);
-        buscarClientePanel.add(btnVolver);
-
-        getContentPane().removeAll(); // Limpiar el contenido actual
-        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
-        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
-
-        // Configurar el tamaño y hacer visible la ventana
-        setSize(350, 250);
-        setLocationRelativeTo(null); // Centrar en la pantalla
         setVisible(true);
 
         btnBuscar.addActionListener(new ActionListener() {
@@ -808,13 +867,7 @@ public class InterfazBancoVirtual extends JFrame {
                 }
             }
         });
-
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
-            }
-        });
+        return buscarClientePanel;
     }
 
     private void mostrarDatosYActualizar(Object[] datos, String rut) {
