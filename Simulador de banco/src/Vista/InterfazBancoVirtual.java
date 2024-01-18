@@ -1,17 +1,27 @@
 package Vista;
-import Controlador.*;
 
-import javax.swing.*;
+import Controlador.*;
+import com.sun.management.GarbageCollectionNotificationInfo;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Locale;
+
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
-import java.awt.*;
+
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 import static Vista.BancoVirtual.*;
 
@@ -29,105 +39,261 @@ public class InterfazBancoVirtual extends JFrame {
         controladorAdministradores = new ControladorAdministradores();
 
         // Ventana de Login
-        JFrame loginFrame = new JFrame("Bienvenido al BancoVirtual - Módulo de Administración");
+        JFrame loginFrame = new JFrame("Iniciar sesión");
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        loginFrame.setSize(500, 350);
-        loginFrame.setLayout(new GridLayout(5, 1));
-        loginFrame.setLocationRelativeTo(null);
 
-        JLabel titleLabel = new JLabel("Bienvenido al BancoVirtual");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        // Configurar la ventana para que se abra maximizada
+        loginFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        // Deshabilitar la capacidad de cambiar el tamaño de la ventana
+        loginFrame.setResizable(false);
+
+        // Usar GridBagLayout para mayor flexibilidad en la disposición de los componentes
+        loginFrame.setLayout(new GridBagLayout());
+
+        // Configurar GridBagConstraints para el título
+        GridBagConstraints gbcTitulo = new GridBagConstraints();
+        gbcTitulo.gridx = 0;
+        gbcTitulo.gridy = 0;
+        gbcTitulo.insets = new Insets(0, 0, 55, 0); // Márgenes inferiores
+
+        JLabel titleLabel = new JLabel("Bienvenido a BancoVirtual");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
-        JLabel subtitleLabel = new JLabel("Módulo de administración de la base de datos");
+        loginFrame.add(titleLabel, gbcTitulo);
+
+        // Configurar GridBagConstraints para el logo
+        GridBagConstraints gbcLogo = new GridBagConstraints();
+        gbcLogo.gridx = 0;
+        gbcLogo.gridy = 1;
+        gbcLogo.insets = new Insets(0, 0, 55, 0); // Márgenes inferiores
+
+        // Logo de la aplicación BancoVirtual
+        ImageIcon logo = crearIcono("/img/bancoVirtualLogo.png");
+        if (logo != null) {
+            // Escalar la imagen a un tamaño específico
+            ImageIcon scaledLogo = escalarImagen(logo, 150, 150);
+            JLabel logoLabel = new JLabel(scaledLogo);
+            logoLabel.setHorizontalAlignment(JLabel.CENTER);
+            loginFrame.setIconImage(scaledLogo.getImage());
+            loginFrame.add(logoLabel, gbcLogo);
+        }
+
+        // Configurar GridBagConstraints para el subtítulo
+        GridBagConstraints gbcSubtitle = new GridBagConstraints();
+        gbcSubtitle.gridx = 0;
+        gbcSubtitle.gridy = 2;
+        gbcSubtitle.insets = new Insets(0, 0, 50, 0); // Márgenes inferiores
+
+        JLabel subtitleLabel = new JLabel("Administración de la base de datos del banco");
+        subtitleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         subtitleLabel.setHorizontalAlignment(JLabel.CENTER);
+        loginFrame.add(subtitleLabel, gbcSubtitle);
 
-        JPanel loginPanel = new JPanel(new GridLayout(3, 2));
-        JLabel rutLabel = new JLabel("RUT (con puntos y guión):");
+        // Configurar GridBagConstraints para el panel de login
+        GridBagConstraints gbcLoginPanel = new GridBagConstraints();
+        gbcLoginPanel.gridx = 0;
+        gbcLoginPanel.gridy = 3;
+        gbcLoginPanel.insets = new Insets(0, 0, 100, 0); // Márgenes inferiores
+
+        JPanel loginPanel = new JPanel(new GridBagLayout());  // Cambiar a GridBagLayout para mayor flexibilidad
+
+        // Configurar GridBagConstraints para el campo de RUT
+        GridBagConstraints gbcRutLabel = new GridBagConstraints();
+        gbcRutLabel.gridx = 0;
+        gbcRutLabel.gridy = 0;
+        gbcRutLabel.anchor = GridBagConstraints.EAST; // Alinear a la derecha
+        gbcRutLabel.insets = new Insets(10, 0, 0, 0);
+
+        JLabel rutLabel = new JLabel("Ingrese su RUT (con puntos y guión):");
+        rutLabel.setPreferredSize(new Dimension(400, 50));
+        rutLabel.setFont(new Font("Arial", Font.PLAIN, 18));
+        loginPanel.add(rutLabel, gbcRutLabel);
+
+        GridBagConstraints gbcRutField = new GridBagConstraints();
+        gbcRutField.gridx = 1;
+        gbcRutField.gridy = 0;
+        gbcRutField.fill = GridBagConstraints.HORIZONTAL; // Hacer que el campo ocupe el espacio horizontal disponible
+        gbcRutField.insets = new Insets(27, 0, 15, 0); // Añadir márgenes a la izquierda
+
         JTextField rutField = new JTextField();
-        JLabel passwordLabel = new JLabel("Contraseña:");
+        rutField.setFont(new Font("Arial", Font.PLAIN, 15));
+        rutField.setPreferredSize(new Dimension(400, 40));  // Establecer el tamaño preferido
+        loginPanel.add(rutField, gbcRutField);
+
+// Configurar GridBagConstraints para el campo de contraseña
+        GridBagConstraints gbcPasswordLabel = new GridBagConstraints();
+        gbcPasswordLabel.gridx = 0;
+        gbcPasswordLabel.gridy = 1;
+        gbcPasswordLabel.anchor = GridBagConstraints.EAST; // Alinear a la derecha
+        gbcPasswordLabel.insets = new Insets(-8, 0, 0, 0);
+
+        JLabel passwordLabel = new JLabel("Ingrese su contraseña:");
+        passwordLabel.setPreferredSize(new Dimension(400, 50));
+        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 18));
+        loginPanel.add(passwordLabel, gbcPasswordLabel);
+
+        GridBagConstraints gbcPasswordField = new GridBagConstraints();
+        gbcPasswordField.gridx = 1;
+        gbcPasswordField.gridy = 1;
+        gbcPasswordField.fill = GridBagConstraints.HORIZONTAL; // Hacer que el campo ocupe el espacio horizontal disponible
+        gbcPasswordField.insets = new Insets(0, 0, 0, 0); // Añadir márgenes a la izquierda
+
         JPasswordField passwordField = new JPasswordField();
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 15));
+        passwordField.setPreferredSize(new Dimension(400, 40));  // Establecer el tamaño preferido
+        loginPanel.add(passwordField, gbcPasswordField);
 
-        loginPanel.add(rutLabel);
-        loginPanel.add(rutField);
-        loginPanel.add(passwordLabel);
-        loginPanel.add(passwordField);
+        loginFrame.add(loginPanel, gbcLoginPanel);
 
-        JButton loginButton = new JButton("Entrar");
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Se verifican las credenciales y se abre la ventana principal si son correctas
-                if (validarCredenciales(rutField.getText(), String.valueOf(passwordField.getPassword()))) {
-                    mostrarMensajeAccesoExitoso();
-                    loginFrame.dispose(); // Cerrar la ventana de login
-                    abrirVentanaPrincipal();
-                }
+        // Configurar GridBagConstraints para el botón de login
+        GridBagConstraints gbcLoginButton = new GridBagConstraints();
+        gbcLoginButton.gridx = 0;
+        gbcLoginButton.gridy = 4;
+        gbcLoginButton.insets = new Insets(-30, 0, 0, 0);
+
+        JButton loginButton = new JButton("Iniciar sesión");
+        loginButton.setPreferredSize(new Dimension(130, 50));
+        loginButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        loginButton.addActionListener(e -> {
+            if (validarCredenciales(rutField.getText(), String.valueOf(passwordField.getPassword()))) {
+                mostrarMensajeAccesoExitoso();
+                loginFrame.dispose();
+                abrirVentanaPrincipal();
             }
         });
+        loginFrame.add(loginButton, gbcLoginButton);
 
-        loginFrame.add(titleLabel);
-        loginFrame.add(subtitleLabel);
-        loginFrame.add(loginPanel);
-        loginFrame.add(loginButton);
+        // Hacer visible la ventana
         loginFrame.setVisible(true);
     }
 
     private void abrirVentanaPrincipal() {
+        getContentPane().removeAll();
         setTitle("Banco Virtual");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        setLayout(new GridLayout(2, 2, 10, 10));
+
+        // Panel 1 con GridBagLayout
+        JPanel panel1 = new JPanel(new GridBagLayout());
+        GridBagConstraints gbcImagenClientes = new GridBagConstraints();
+        GridBagConstraints gbcBotonClientes = new GridBagConstraints();
+
+        ImageIcon imageClientes = crearIcono("/img/logoClientes.png");
+        ImageIcon scaledImageClientes = escalarImagen(imageClientes, 250, 200);
+        JLabel labelClientes = new JLabel(scaledImageClientes);
+        gbcImagenClientes.insets = new Insets(60, 400, 10, 10);
+        panel1.add(labelClientes, gbcImagenClientes);
+
         JButton btnGestionClientes = new JButton("Gestión de clientes");
+        btnGestionClientes.setPreferredSize(new Dimension(180, 35));
+        btnGestionClientes.setFont(new Font("Arial", Font.BOLD, 15));
+        btnGestionClientes.addActionListener(e -> gestionClientes());
+        gbcBotonClientes.insets = new Insets(30, 400, 10, 10);
+        gbcBotonClientes.gridy = 1;
+        panel1.add(btnGestionClientes, gbcBotonClientes);
+
+        add(panel1);
+
+        // Panel 2 con GridBagLayout
+        JPanel panel2 = new JPanel(new GridBagLayout());
+        GridBagConstraints gbcImagenAhorro = new GridBagConstraints();
+        GridBagConstraints gbcBotonAhorro = new GridBagConstraints();
+
+        ImageIcon imageAhorro = crearIcono("/img/logoCuentasDeAhorro.png");
+        ImageIcon scaledImageAhorro = escalarImagen(imageAhorro, 200, 200);
+        JLabel labelAhorro = new JLabel(scaledImageAhorro);
+        gbcImagenAhorro.insets = new Insets(60, 10, 10, 400);
+        panel2.add(labelAhorro, gbcImagenAhorro);
+
         JButton btnGestionCuentasAhorro = new JButton("Gestión de cuentas de ahorro");
+        btnGestionCuentasAhorro.setPreferredSize(new Dimension(260, 35));
+        btnGestionCuentasAhorro.setFont(new Font("Arial", Font.BOLD, 15));
+        btnGestionCuentasAhorro.addActionListener(e -> gestionCuentasDeAhorro());
+        gbcBotonAhorro.insets = new Insets(30, 10, 10, 400);
+        gbcBotonAhorro.gridy = 1;
+        panel2.add(btnGestionCuentasAhorro, gbcBotonAhorro);
+
+        add(panel2);
+
+        // Panel 3 con GridBagLayout
+        JPanel panel3 = new JPanel(new GridBagLayout());
+        GridBagConstraints gbcImagenCorrientes = new GridBagConstraints();
+        GridBagConstraints gbcBotonCorrientes = new GridBagConstraints();
+
+        ImageIcon imageCorrientes = crearIcono("/img/logoCuentasCorrientes.png");
+        ImageIcon scaledImageCorrientes = escalarImagen(imageCorrientes, 200, 200);
+        JLabel labelCorrientes = new JLabel(scaledImageCorrientes);
+        gbcImagenCorrientes.insets = new Insets(30, 400, 10, 10);
+        panel3.add(labelCorrientes, gbcImagenCorrientes);
+
         JButton btnGestionCuentasCorrientes = new JButton("Gestión de cuentas corrientes");
+        btnGestionCuentasCorrientes.setPreferredSize(new Dimension(260, 35));
+        btnGestionCuentasCorrientes.setFont(new Font("Arial", Font.BOLD, 15));
+        btnGestionCuentasCorrientes.addActionListener(e -> gestionCuentasCorrientes());
+        gbcBotonCorrientes.insets = new Insets(30, 410, 60, 10);
+        gbcBotonCorrientes.gridy = 1;
+        panel3.add(btnGestionCuentasCorrientes, gbcBotonCorrientes);
+
+        add(panel3);
+
+        // Panel 4 con GridBagLayout
+        JPanel panel4 = new JPanel(new GridBagLayout());
+        GridBagConstraints gbcImagenSalir = new GridBagConstraints();
+        GridBagConstraints gbcBotonSalir = new GridBagConstraints();
+
+        ImageIcon imageSalir = crearIcono("/img/salir.png");
+        ImageIcon scaledImageSalir = escalarImagen(imageSalir, 200, 200);
+        JLabel labelSalir = new JLabel(scaledImageSalir);
+        gbcImagenSalir.insets = new Insets(30, 10, 10, 400);
+        panel4.add(labelSalir, gbcImagenSalir);
+
         JButton btnSalir = new JButton("Salir");
+        btnSalir.setPreferredSize(new Dimension(180, 35));
+        btnSalir.setFont(new Font("Arial", Font.BOLD, 15));
+        btnSalir.addActionListener(e -> {
+            int respuesta = JOptionPane.showConfirmDialog(this,
+                    "¿Estás seguro?", "Confirmación", JOptionPane.YES_NO_OPTION);
 
-        getContentPane().setLayout(new FlowLayout());
-        getContentPane().removeAll();
-        getContentPane().add(btnGestionClientes);
-        getContentPane().add(btnGestionCuentasAhorro);
-        getContentPane().add(btnGestionCuentasCorrientes);
-        getContentPane().add(btnSalir);
+            if (respuesta == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
+        gbcBotonSalir.insets = new Insets(30, 10, 60, 400);
+        gbcBotonSalir.gridy = 1;
+        panel4.add(btnSalir, gbcBotonSalir);
 
-        // Configurar el tamaño y hacer visible la ventana
-        setSize(300, 150);
-        setLocationRelativeTo(null); // Centrar en la pantalla
+        add(panel4);
+
+        pack();
+        setLocationRelativeTo(null);
         setVisible(true);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+    }
 
-        btnGestionClientes.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
+    // Método para cargar la imagen desde un archivo
+    protected ImageIcon crearIcono(String ruta) {
+        try {
+            InputStream inputStream = getClass().getResourceAsStream(ruta);
+
+            if (inputStream != null) {
+                byte[] bytes = inputStream.readAllBytes();
+                return new ImageIcon(bytes);
+            } else {
+                System.err.println("No se pudo encontrar el archivo de imagen en la ruta " + ruta);
+                return null;
             }
-        });
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-        btnGestionCuentasAhorro.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionCuentasDeAhorro();
-            }
-        });
-
-        btnGestionCuentasCorrientes.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionCuentasCorrientes();
-            }
-        });
-
-        btnSalir.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Preguntar al usuario si está seguro
-                Object[] options = {"Sí", "No"};
-                int respuesta = JOptionPane.showOptionDialog(InterfazBancoVirtual.this,
-                        "¿Estás seguro?", "Confirmación", JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-
-                if (respuesta == JOptionPane.YES_OPTION) {
-                    System.exit(0);
-                }
-            }
-        });
+    private ImageIcon escalarImagen(ImageIcon icono, int ancho, int alto) {
+        Image imagen = icono.getImage();
+        Image imagenEscalada = imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+        return new ImageIcon(imagenEscalada);
     }
 
     private void gestionClientes() {
@@ -138,7 +304,7 @@ public class InterfazBancoVirtual extends JFrame {
 
         controladorClientes = new ControladorClientes();
 
-        JPanel gestionClientesPanel = new JPanel(new FlowLayout());
+        JPanel botonesPanel = new JPanel(new GridBagLayout());
 
         JButton btnIngresarCliente = new JButton("Ingresar cliente");
         JButton btnListaDeClientes = new JButton("Lista de clientes");
@@ -147,53 +313,200 @@ public class InterfazBancoVirtual extends JFrame {
         JButton btnBuscarCliente = new JButton("Buscar cliente por RUT");
         JButton btnVolver = new JButton("Volver");
 
-        gestionClientesPanel.add(btnIngresarCliente);
-        gestionClientesPanel.add(btnListaDeClientes);
-        gestionClientesPanel.add(btnActualizarCliente);
-        gestionClientesPanel.add(btnEliminarCliente);
-        gestionClientesPanel.add(btnBuscarCliente);
-        gestionClientesPanel.add(btnVolver);
+        // Establecer un tamaño fijo para los botones
+        Dimension buttonSize = new Dimension(180, 35);
+        Dimension actualizarButtonSize = new Dimension(220, 35);
+        btnIngresarCliente.setPreferredSize(buttonSize);
+        btnListaDeClientes.setPreferredSize(buttonSize);
+        btnActualizarCliente.setPreferredSize(actualizarButtonSize);
+        btnEliminarCliente.setPreferredSize(buttonSize);
+        btnBuscarCliente.setPreferredSize(buttonSize);
+        btnVolver.setPreferredSize(buttonSize);
+
+        GridBagConstraints gbcBtnIngresarCliente = new GridBagConstraints();
+        GridBagConstraints gbcBtnListaDeClientes = new GridBagConstraints();
+        GridBagConstraints gbcBtnActualizarCliente = new GridBagConstraints();
+        GridBagConstraints gbcBtnEliminarCliente = new GridBagConstraints();
+        GridBagConstraints gbcBtnBuscarCliente = new GridBagConstraints();
+        GridBagConstraints gbcBtnVolver = new GridBagConstraints();
+
+        GridBagConstraints gbcImagenAgregarClientes = new GridBagConstraints();
+
+        ImageIcon imageAgregarCliente = crearIcono("/img/agregarCliente.png");
+        ImageIcon scaledImageAgregarCliente = escalarImagen(imageAgregarCliente, 150, 150);
+        JLabel labelAgregarCliente = new JLabel(scaledImageAgregarCliente);
+
+        gbcImagenAgregarClientes.insets = new Insets(0, 10, 10, 10);
+        gbcImagenAgregarClientes.gridx = 0;
+        gbcImagenAgregarClientes.gridy = 0;
+
+        botonesPanel.add(labelAgregarCliente, gbcImagenAgregarClientes);
+
+        gbcBtnIngresarCliente.gridx = 0;
+        gbcBtnIngresarCliente.gridy = 1;
+        gbcBtnIngresarCliente.insets = new Insets(15, 10, 5, 10); // Márgenes entre botones
+
+        botonesPanel.add(btnIngresarCliente, gbcBtnIngresarCliente);
+
+        GridBagConstraints gbcImagenListaClientes = new GridBagConstraints();
+
+        ImageIcon imageListaClientes = crearIcono("/img/listaClientes.png");
+        ImageIcon scaledImageListaClientes = escalarImagen(imageListaClientes, 150, 150);
+        JLabel labelListaClientes = new JLabel(scaledImageListaClientes);
+
+        gbcImagenListaClientes.insets = new Insets(30, 10, 10, 10);
+        gbcImagenListaClientes.gridx = 0;
+        gbcImagenListaClientes.gridy = 2;
+
+        botonesPanel.add(labelListaClientes, gbcImagenListaClientes);
+
+        gbcBtnListaDeClientes.gridx = 0;
+        gbcBtnListaDeClientes.gridy = 3;
+        gbcBtnListaDeClientes.insets = new Insets(15, 10, 5, 10);
+
+        botonesPanel.add(btnListaDeClientes, gbcBtnListaDeClientes);
+
+        GridBagConstraints gbcImagenActualizarCliente = new GridBagConstraints();
+
+        ImageIcon imageActualizarCliente = crearIcono("/img/actualizarDatos.png");
+        ImageIcon scaledImageActualizarCliente = escalarImagen(imageActualizarCliente, 150, 150);
+        JLabel labelActualizarCliente = new JLabel(scaledImageActualizarCliente);
+
+        gbcImagenActualizarCliente.insets = new Insets(30, 10, 10, 10);
+        gbcImagenActualizarCliente.gridx = 0;
+        gbcImagenActualizarCliente.gridy = 4;
+
+        botonesPanel.add(labelActualizarCliente, gbcImagenActualizarCliente);
+
+        gbcBtnActualizarCliente.gridx = 0;
+        gbcBtnActualizarCliente.gridy = 5;
+        gbcBtnActualizarCliente.insets = new Insets(15, 10, 5, 10);
+
+        botonesPanel.add(btnActualizarCliente, gbcBtnActualizarCliente);
+
+        GridBagConstraints gbcImagenEliminarCliente = new GridBagConstraints();
+
+        ImageIcon imageEliminarCliente = crearIcono("/img/eliminarCliente.png");
+        ImageIcon scaledImageEliminarCliente = escalarImagen(imageEliminarCliente, 150, 150);
+        JLabel labelEliminarCliente = new JLabel(scaledImageEliminarCliente);
+
+        gbcImagenEliminarCliente.insets = new Insets(0, 10, 10, 10);
+        gbcImagenEliminarCliente.gridx = 1;
+        gbcImagenEliminarCliente.gridy = 0;
+
+        botonesPanel.add(labelEliminarCliente, gbcImagenEliminarCliente);
+
+        gbcBtnEliminarCliente.gridx = 1;
+        gbcBtnEliminarCliente.gridy = 1;
+        gbcBtnEliminarCliente.insets = new Insets(15, 10, 5, 10);
+
+        botonesPanel.add(btnEliminarCliente, gbcBtnEliminarCliente);
+
+        GridBagConstraints gbcImagenBuscarCliente = new GridBagConstraints();
+
+        ImageIcon imageBuscarCliente = crearIcono("/img/buscarCliente.png");
+        ImageIcon scaledImageBuscarCliente = escalarImagen(imageBuscarCliente, 150, 150);
+        JLabel labelBuscarCliente = new JLabel(scaledImageBuscarCliente);
+
+        gbcImagenBuscarCliente.insets = new Insets(30, 10, 10, 10);
+        gbcImagenBuscarCliente.gridx = 1;
+        gbcImagenBuscarCliente.gridy = 2;
+
+        botonesPanel.add(labelBuscarCliente, gbcImagenBuscarCliente);
+
+        gbcBtnBuscarCliente.gridx = 1;
+        gbcBtnBuscarCliente.gridy = 3;
+        gbcBtnBuscarCliente.insets = new Insets(15, 10, 5, 10);
+
+        botonesPanel.add(btnBuscarCliente, gbcBtnBuscarCliente);
+
+        GridBagConstraints gbcImagenVolver = new GridBagConstraints();
+
+        ImageIcon imageVolver = crearIcono("/img/salir.png");
+        ImageIcon scaledImageVolver = escalarImagen(imageVolver, 150, 150);
+        JLabel labelVolver = new JLabel(scaledImageVolver);
+
+        gbcImagenVolver.insets = new Insets(30, 10, 10, 10);
+        gbcImagenVolver.gridx = 1;
+        gbcImagenVolver.gridy = 4;
+
+        botonesPanel.add(labelVolver, gbcImagenVolver);
+
+        gbcBtnVolver.gridx = 1;
+        gbcBtnVolver.gridy = 5;
+        gbcBtnVolver.insets = new Insets(15, 10, 5, 10);
+
+        botonesPanel.add(btnVolver, gbcBtnVolver);
+
+        JPanel contenidoPanel = new JPanel(new GridBagLayout());
+
+        ImageIcon imagenCliente = crearIcono("/img/clientIcon.png");
+        ImageIcon scaledImagenCliente = escalarImagen(imagenCliente, 500, 500);
+        JLabel labelImagenCliente = new JLabel(scaledImagenCliente);
+
+        GridBagConstraints gbcImagenCliente = new GridBagConstraints();
+        gbcImagenCliente.gridx = 0;
+        gbcImagenCliente.gridy = 0;
+        gbcImagenCliente.insets = new Insets(0, 0, 0, 0);
+        contenidoPanel.add(labelImagenCliente, gbcImagenCliente);
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, botonesPanel, contenidoPanel);
+        splitPane.setDividerLocation(600); // Ancho inicial del panel izquierdo
 
         getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
-        getContentPane().add(gestionClientesPanel, BorderLayout.CENTER);
+        getContentPane().add(splitPane, BorderLayout.CENTER);
 
-        // Configurar el tamaño y hacer visible la ventana
-        setSize(300, 175);
-        setLocationRelativeTo(null); // Centrar en la pantalla
+        setLocationRelativeTo(null);
         setVisible(true);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         btnIngresarCliente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ingresarCliente();
+                contenidoPanel.removeAll();
+                contenidoPanel.add(ingresarCliente());
+                contenidoPanel.revalidate(); // Revalida el contenido
+                contenidoPanel.repaint();
             }
         });
 
         btnListaDeClientes.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                listaDeClientes();
+                contenidoPanel.removeAll();
+                contenidoPanel.add(listaDeClientes());
+                contenidoPanel.revalidate(); // Revalida el contenido
+                contenidoPanel.repaint();
             }
         });
 
         btnActualizarCliente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                actualizarCliente();
+                contenidoPanel.removeAll();
+                contenidoPanel.add(actualizarCliente());
+                contenidoPanel.revalidate(); // Revalida el contenido
+                contenidoPanel.repaint();
             }
         });
 
         btnEliminarCliente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                eliminarCliente();
+                contenidoPanel.removeAll();
+                contenidoPanel.add(eliminarCliente());
+                contenidoPanel.revalidate(); // Revalida el contenido
+                contenidoPanel.repaint();
             }
         });
 
         btnBuscarCliente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                buscarCliente();
+                contenidoPanel.removeAll();
+                contenidoPanel.add(buscarCliente());
+                contenidoPanel.revalidate(); // Revalida el contenido
+                contenidoPanel.repaint();
             }
         });
 
@@ -205,56 +518,179 @@ public class InterfazBancoVirtual extends JFrame {
         });
     }
 
-    private void ingresarCliente() {
-        setTitle("Ingresar cliente");
+    private JPanel ingresarCliente() {
+        setTitle("Gestión de clientes");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel ingresarClientePanel = new JPanel(new GridLayout(7, 2));
+        JPanel ingresarClientePanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        GridBagConstraints gbcTitulo = new GridBagConstraints();
+        GridBagConstraints gbcBoton = new GridBagConstraints();
+        GridBagConstraints gbcImagen = new GridBagConstraints();
+        gbc.insets = new Insets(5, 20, 5, 5); // Márgenes
+
+        int titleFontSize = 25;
+        int labelFontSize = 20;
+        int fieldFontSize = 15;
+        int fieldWidth = 300;
+        int fieldHeight = 40;
+        int btnWidth = 100;
+        int btnHeight = 32;
+        int btnFontSize = 16;
+
+        // Crear un borde compuesto
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(), // Borde grabado para efecto visual
+                BorderFactory.createEmptyBorder(-50, 10, 10, 10) // Márgenes internos
+        );
+
+        // Añadir un margen superior externo para mover el recuadro hacia abajo
+        Border outerMargin = new EmptyBorder(0, 0, 0, 0);
+        Border titledBorder = BorderFactory.createCompoundBorder(
+                outerMargin,
+                border
+        );
+
+        ingresarClientePanel.setBorder(titledBorder);
+
+        // Título
+        JLabel titleLabel = new JLabel("Ingresar cliente a la base de datos");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, titleFontSize));
+        gbcTitulo.gridx = 0;
+        gbcTitulo.gridy = 0;
+        gbcTitulo.gridwidth = 2; // Ocupa dos columnas
+        gbcTitulo.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+        gbcTitulo.insets = new Insets(100, 5, 20, 5);
+        ingresarClientePanel.add(titleLabel, gbcTitulo);
+
+        ImageIcon imagen = crearIcono("/img/agregarCliente.png");
+        ImageIcon scaledImagen = escalarImagen(imagen, 100, 100);
+        JLabel labelImagen = new JLabel(scaledImagen);
+
+        gbcImagen.insets = new Insets(0, 10, 50, 10);
+        gbcImagen.anchor = GridBagConstraints.CENTER;
+        gbcImagen.gridwidth = 2;
+        gbcImagen.gridx = 0;
+        gbcImagen.gridy = 1;
 
         JLabel nombreLabel = new JLabel("Nombre:");
+        nombreLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         JTextField nombreField = new JTextField();
+        nombreField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        nombreField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
         JLabel apellidoLabel = new JLabel("Apellido:");
+        apellidoLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         JTextField apellidoField = new JTextField();
+        apellidoField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        apellidoField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
         JLabel edadLabel = new JLabel("Edad:");
-        SpinnerModel edadModel = new SpinnerNumberModel(18, 1, 110, 1); // Rango de edad de 1 a 120, inicio en 18
+        edadLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
+        SpinnerModel edadModel = new SpinnerNumberModel(18, 1, 110, 1);
         JSpinner edadSpinner = new JSpinner(edadModel);
+        edadSpinner.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        edadSpinner.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
         JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         JTextField emailField = new JTextField();
+        emailField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        emailField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
         JLabel rutLabel = new JLabel("RUT (con puntos y guión):");
+        rutLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         JTextField rutField = new JTextField();
+        rutField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        rutField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
         JLabel fonoLabel = new JLabel("Teléfono:");
+        fonoLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         JTextField fonoField = new JTextField();
+        fonoField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        fonoField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
 
-        JButton btnIngresarCliente = new JButton("Ingresar cliente");
-        JButton btnVolver = new JButton("Volver");
+        JButton btnIngresarCliente = new JButton("Ingresar");
+        btnIngresarCliente.setPreferredSize(new Dimension(btnWidth, btnHeight));
+        btnIngresarCliente.setFont(new Font("Arial", Font.PLAIN, btnFontSize));
 
-        ingresarClientePanel.add(nombreLabel);
-        ingresarClientePanel.add(nombreField);
-        ingresarClientePanel.add(apellidoLabel);
-        ingresarClientePanel.add(apellidoField);
-        ingresarClientePanel.add(edadLabel);
-        ingresarClientePanel.add(edadSpinner);
-        ingresarClientePanel.add(emailLabel);
-        ingresarClientePanel.add(emailField);
-        ingresarClientePanel.add(rutLabel);
-        ingresarClientePanel.add(rutField);
-        ingresarClientePanel.add(fonoLabel);
-        ingresarClientePanel.add(fonoField);
-        ingresarClientePanel.add(btnIngresarCliente);
-        ingresarClientePanel.add(btnVolver);
+        ingresarClientePanel.add(labelImagen, gbcImagen);
 
-        getContentPane().removeAll(); // Limpiar el contenido actual
-        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
-        getContentPane().add(ingresarClientePanel, BorderLayout.CENTER);
+        // Nombre
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(nombreLabel, gbc);
 
-        // Configurar el tamaño y hacer visible la ventana
-        setSize(500, 350);
-        setLocationRelativeTo(null); // Centrar en la pantalla
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(nombreField, gbc);
+
+        // Apellido
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(apellidoLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(apellidoField, gbc);
+
+        // Edad
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(edadLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(edadSpinner, gbc);
+
+        // Email
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(emailLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(emailField, gbc);
+
+        // RUT
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(rutLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(rutField, gbc);
+
+        // Teléfono
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(fonoLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 7;
+        gbc.anchor = GridBagConstraints.WEST;
+        ingresarClientePanel.add(fonoField, gbc);
+
+        // Botón Ingresar cliente
+        gbcBoton.gridx = 0;
+        gbcBoton.gridy = 8;
+        gbcBoton.gridwidth = 2; // Ocupa dos columnas
+        gbcBoton.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+        gbcBoton.insets = new Insets(50, 5, 30, 5);
+        ingresarClientePanel.add(btnIngresarCliente, gbcBoton);
+
         setVisible(true);
 
         btnIngresarCliente.addActionListener(new ActionListener() {
@@ -263,29 +699,50 @@ public class InterfazBancoVirtual extends JFrame {
                 if(validarDatosIngresoCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
                     if(controladorClientes.crearCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
                         JOptionPane.showMessageDialog(ingresarClientePanel, "Cliente ingresado con éxito", "Inserción exitosa", JOptionPane.INFORMATION_MESSAGE);
-                        gestionClientes();
                     }
                     else {
                         JOptionPane.showMessageDialog(ingresarClientePanel, "No se pudo agregar al cliente", "Inserción fallida", JOptionPane.ERROR_MESSAGE);
-                        gestionClientes();
                     }
                 }
             }
         });
 
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
-            }
-        });
+        return ingresarClientePanel;
     }
 
-    private void listaDeClientes() {
-        getContentPane().removeAll();
-        setTitle("Lista de clientes del banco:");
+
+    private JPanel listaDeClientes() {
+
+        JPanel listaDeClientesPanel = new JPanel(new GridBagLayout());
+
+        GridBagConstraints gbcTitle = new GridBagConstraints();
+        GridBagConstraints gbcTable = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
+
+        setTitle("Gestión de clientes:");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 350);
+
+        JLabel title = new JLabel("Clientes que hay en el banco actualmente:");
+        title.setFont(new Font("Arial", Font.BOLD, 20));
+        gbcTitle.gridx = 0;
+        gbcTitle.gridy = 0;
+        gbcTitle.insets = new Insets(0, 0, 20, 0);
+
+        listaDeClientesPanel.add(title, gbcTitle);
+
+        ImageIcon imagen = crearIcono("/img/listaClientes.png");
+        ImageIcon scaledImagen = escalarImagen(imagen, 60, 60);
+        JLabel labelImagen = new JLabel(scaledImagen);
+
+        GridBagConstraints gbcImagen = new GridBagConstraints();
+
+        gbcImagen.insets = new Insets(0, 10, 50, 10);
+        gbcImagen.anchor = GridBagConstraints.CENTER;
+        gbcImagen.gridwidth = 2;
+        gbcImagen.gridx = 0;
+        gbcImagen.gridy = 1;
+
+        listaDeClientesPanel.add(labelImagen, gbcImagen);
 
         String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono", "¿Cuenta de ahorro?", "¿Cuenta corriente?"};
 
@@ -294,20 +751,40 @@ public class InterfazBancoVirtual extends JFrame {
         DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
 
         JTable table = new JTable(tableModel);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        int[] anchos = {25, 80, 80, 50, 220, 100, 110, 120, 120};
+        for (int i = 0; i < columnas.length; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+        }
+
         JScrollPane scrollPane = new JScrollPane(table);
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
+        gbcTable.gridx = 0;
+        gbcTable.gridy = 2;
+        listaDeClientesPanel.add(scrollPane, gbcTable);
 
         Object[][] clientes = controladorClientes.obtenerDatosClientes();
 
         if (clientes.length == 0) {
             JOptionPane.showMessageDialog(this, "No hay clientes en la base de datos", "Base de datos vacía", JOptionPane.ERROR_MESSAGE);
-            gestionClientes();
         }
 
         else {
             for (Object[] cliente : clientes) {
                 tableModel.addRow(cliente);
             }
+
+            // Establecer un ancho preferido para la tabla
+            int anchoTotal = 0;
+            for (int ancho : anchos) {
+                anchoTotal += ancho;
+            }
+
+            // Establecer un alto preferido para la tabla
+            int altoTotal = table.getRowHeight() * tableModel.getRowCount();
+
+            table.setPreferredScrollableViewportSize(new Dimension(anchoTotal, altoTotal));
+            table.setFont(new Font("Arial", Font.PLAIN, 14));
 
             // Botón de actualizado
             JButton btnActualizar = new JButton("Actualizar registros");
@@ -316,29 +793,33 @@ public class InterfazBancoVirtual extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     // Lógica para actualizar la lista de clientes
                     actualizarListaClientes(tableModel);
+                    // Establecer un alto preferido para la tabla
+                    int altoTotal = table.getRowHeight() * tableModel.getRowCount();
+
+                    // Establecer un ancho preferido para la tabla
+                    int anchoTotal = 0;
+                    for (int ancho : anchos) {
+                        anchoTotal += ancho;
+                    }
+
+                    table.setPreferredScrollableViewportSize(new Dimension(anchoTotal, altoTotal));
+                    table.setFont(new Font("Arial", Font.PLAIN, 14));
                 }
             });
 
-            // Panel para el botón volver
-            JPanel buttonPanel = new JPanel();
-            JButton btnVolver = new JButton("Volver");
+            gbcBtn.gridx = 0;
+            gbcBtn.gridy = 3;
+            gbcBtn.insets = new Insets(50, 0, 0, 0);
 
-            buttonPanel.add(btnActualizar);
-            buttonPanel.add(btnVolver);
+            btnActualizar.setPreferredSize(new Dimension(175, 32));
+            btnActualizar.setFont(new Font("Arial", Font.PLAIN, 14));
 
-            // Agregar el panel de botones a la parte inferior de la ventana
-            getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+            listaDeClientesPanel.add(btnActualizar, gbcBtn);
 
-            btnVolver.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    gestionClientes();
-                }
-            });
-
-            setLocationRelativeTo(null); // Centrar en la pantalla
             setVisible(true);
         }
+
+        return listaDeClientesPanel;
     }
 
     // Método para actualizar la lista de clientes
@@ -360,31 +841,76 @@ public class InterfazBancoVirtual extends JFrame {
         }
     }
 
-    private void actualizarCliente() {
+    private JPanel actualizarCliente() {
         setTitle("Actualizar datos de un cliente");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
+        JPanel buscarClientePanel = new JPanel(new GridBagLayout());
 
-        JLabel rutLabel = new JLabel("RUT del cliente (con puntos y guión):");
+        GridBagConstraints gbcTitle = new GridBagConstraints();
+        GridBagConstraints gbcImage = new GridBagConstraints();
+        GridBagConstraints gbcLabel = new GridBagConstraints();
+        GridBagConstraints gbcField = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
+
+        JLabel title = new JLabel("Actualizar datos del cliente");
+        title.setFont(new Font("Arial", Font.BOLD, 25));
+        gbcTitle.gridx = 0;
+        gbcTitle.gridy = 0;
+        gbcTitle.gridwidth = 2; // Ocupa dos columnas
+        gbcTitle.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+        gbcTitle.insets = new Insets(100, 5, 20, 5);
+
+        ImageIcon imagen = crearIcono("/img/actualizarDatos.png");
+        ImageIcon scaledImagen = escalarImagen(imagen, 100, 100);
+        JLabel labelImagen = new JLabel(scaledImagen);
+        gbcImage.gridx = 0;
+        gbcImage.gridy = 1;
+        gbcImage.gridwidth = 2;
+        gbcImage.insets = new Insets(0, 5, 20, 5);
+
+        JLabel rutLabel = new JLabel("Ingrese el RUT del cliente (con puntos y guión):");
+        rutLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        gbcLabel.gridx = 0;
+        gbcLabel.gridy = 2;
+        gbcLabel.insets = new Insets(20, 5, 20, 5);
+
         JTextField rutField = new JTextField();
+        rutField.setFont(new Font("Arial", Font.PLAIN, 15));
+        rutField.setPreferredSize(new Dimension(300, 40));
+        gbcField.gridx = 0;
+        gbcField.gridy = 3;
+        gbcField.insets = new Insets(0, 5, 20, 5);
 
         JButton btnBuscar = new JButton("Buscar");
-        JButton btnVolver = new JButton("Volver");
+        btnBuscar.setPreferredSize(new Dimension(100, 32));
+        btnBuscar.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbcBtn.gridx = 0;
+        gbcBtn.gridy = 4;
+        gbcBtn.gridwidth = 2;
+        gbcBtn.insets = new Insets(20, 5, 20, 5);
 
-        buscarClientePanel.add(rutLabel);
-        buscarClientePanel.add(rutField);
+        // Crear un borde compuesto
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(), // Borde grabado para efecto visual
+                BorderFactory.createEmptyBorder(-50, 10, 10, 10) // Márgenes internos
+        );
 
-        buscarClientePanel.add(btnBuscar);
-        buscarClientePanel.add(btnVolver);
+        // Añadir un margen superior externo para mover el recuadro hacia abajo
+        Border outerMargin = new EmptyBorder(0, 0, 0, 0);
+        Border titledBorder = BorderFactory.createCompoundBorder(
+                outerMargin,
+                border
+        );
 
-        getContentPane().removeAll(); // Limpiar el contenido actual
-        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
-        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
+        buscarClientePanel.add(title, gbcTitle);
+        buscarClientePanel.add(labelImagen, gbcImage);
+        buscarClientePanel.add(rutLabel, gbcLabel);
+        buscarClientePanel.add(rutField, gbcField);
+        buscarClientePanel.add(btnBuscar, gbcBtn);
 
-        // Configurar el tamaño y hacer visible la ventana
-        setSize(350, 250);
-        setLocationRelativeTo(null); // Centrar en la pantalla
+        buscarClientePanel.setBorder(titledBorder);
+
         setVisible(true);
 
         btnBuscar.addActionListener(new ActionListener() {
@@ -394,7 +920,12 @@ public class InterfazBancoVirtual extends JFrame {
                     Object[] datos = controladorClientes.buscarCliente(rutField.getText());
                     if(datos.length > 0){
                         JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
-                        mostrarDatosYActualizar(datos, rutField.getText());
+                        buscarClientePanel.remove(rutLabel);
+                        buscarClientePanel.remove(rutField);
+                        buscarClientePanel.remove(btnBuscar);
+                        buscarClientePanel.add(mostrarDatosYActualizar(datos, rutField.getText(), buscarClientePanel));
+                        buscarClientePanel.revalidate(); // Revalida el contenido
+                        buscarClientePanel.repaint();
                     }
                     else {
                         JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
@@ -405,89 +936,144 @@ public class InterfazBancoVirtual extends JFrame {
                 }
             }
         });
-
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
-            }
-        });
+        return buscarClientePanel;
     }
 
-    private void mostrarDatosYActualizar(Object[] datos, String rut) {
-        getContentPane().removeAll();
-        setTitle("Actualizar cliente");
+    private JPanel mostrarDatosYActualizar(Object[] datos, String rut, JPanel actualizarClientePanel) {
+        setTitle("Gestión de clientes");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 300);
 
-        // Crear un panel para organizar la interfaz
-        JPanel mainPanel = new JPanel(new BorderLayout());
+        GridBagConstraints gbcNombreLabel = new GridBagConstraints();
+        GridBagConstraints gbcNombreField = new GridBagConstraints();
+        GridBagConstraints gbcApellidoLabel = new GridBagConstraints();
+        GridBagConstraints gbcApellidoField = new GridBagConstraints();
+        GridBagConstraints gbcEdadLabel = new GridBagConstraints();
+        GridBagConstraints gbcEdadField = new GridBagConstraints();
+        GridBagConstraints gbcEmailLabel = new GridBagConstraints();
+        GridBagConstraints gbcEmailField = new GridBagConstraints();
+        GridBagConstraints gbcFonoLabel = new GridBagConstraints();
+        GridBagConstraints gbcFonoField = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
+        int labelFontSize = 16;
+        int fieldFontSize = 15;
+        int btnFontSize = 16;
 
         // Etiqueta para el encabezado
-        JLabel actualizarLabel = new JLabel("Actualizar cliente");
-        actualizarLabel.setHorizontalAlignment(JLabel.CENTER);
-        mainPanel.add(actualizarLabel, BorderLayout.NORTH);
-
-        String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono"};
-
-        // Datos
-        DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
-        JTable table = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(table);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-
-        tableModel.addRow(datos);
-        setVisible(true); // Asegura que la ventana sea visible
-        table.setVisible(true);
-
-        // Panel para los campos de actualización
-        JPanel actualizarClientePanel = new JPanel(new GridLayout(6, 2));
 
         JLabel nombreLabel = new JLabel("Nombre:");
         JTextField nombreField = new JTextField();
+        nombreLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
+        nombreField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        nombreField.setPreferredSize(new Dimension(300, 40));
+        gbcNombreLabel.gridx = 0;
+        gbcNombreLabel.gridy = 2;
+        gbcNombreLabel.insets = new Insets(20, 5, 20, 5);
+        gbcNombreField.gridx = 1;
+        gbcNombreField.gridy = 2;
+        gbcNombreField.insets = new Insets(20, 5, 20, 5);
         addPlaceholder(nombreField, "(Nombre actual: " + ((String) datos[1]) + ")");
 
         JLabel apellidoLabel = new JLabel("Apellido:");
         JTextField apellidoField = new JTextField();
+        apellidoLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
+        apellidoField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        apellidoField.setPreferredSize(new Dimension(300, 40));
+        gbcApellidoLabel.gridx = 0;
+        gbcApellidoLabel.gridy = 3;
+        gbcApellidoLabel.insets = new Insets(0, 5, 20, 5);
+        gbcApellidoField.gridx = 1;
+        gbcApellidoField.gridy = 3;
+        gbcApellidoField.insets = new Insets(0, 5, 20, 5);
         addPlaceholder(apellidoField, "(Apellido actual: " + ((String) datos[2]) + ")");
 
         JLabel edadLabel = new JLabel("Edad:");
+        edadLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         SpinnerModel edadModel = new SpinnerNumberModel(18, 1, 110, 1);
+        gbcEdadLabel.gridx = 0;
+        gbcEdadLabel.gridy = 4;
+        gbcEdadLabel.insets = new Insets(0, 5, 20, 5);
         JSpinner edadSpinner = new JSpinner(edadModel);
+        edadSpinner.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        edadSpinner.setPreferredSize(new Dimension(300, 40));
+        gbcEdadField.gridx = 1;
+        gbcEdadField.gridy = 4;
+        gbcEdadField.insets = new Insets(0, 5, 20, 5);
 
         JLabel emailLabel = new JLabel("Email:");
         JTextField emailField = new JTextField();
+        emailLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
+        emailField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        emailField.setPreferredSize(new Dimension(300, 40));
+        gbcEmailLabel.gridx = 0;
+        gbcEmailLabel.gridy = 5;
+        gbcEmailLabel.insets = new Insets(0, 5, 20, 5);
+        gbcEmailField.gridx = 1;
+        gbcEmailField.gridy = 5;
+        gbcEmailField.insets = new Insets(0, 5, 20, 5);
         addPlaceholder(emailField, "(Email actual: " + ((String) datos[4]) + ")");
 
         JLabel fonoLabel = new JLabel("Teléfono:");
         JTextField fonoField = new JTextField();
+        fonoLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
+        fonoField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        fonoField.setPreferredSize(new Dimension(300, 40));
+        gbcFonoLabel.gridx = 0;
+        gbcFonoLabel.gridy = 6;
+        gbcFonoLabel.insets = new Insets(0, 5, 20, 5);
+        gbcFonoField.gridx = 1;
+        gbcFonoField.gridy = 6;
+        gbcFonoField.insets = new Insets(0, 5, 20, 5);
         addPlaceholder(fonoField, "(Teléfono actual: " + ((String) datos[6]) + ")");
 
-        actualizarClientePanel.add(nombreLabel);
-        actualizarClientePanel.add(nombreField);
-        actualizarClientePanel.add(apellidoLabel);
-        actualizarClientePanel.add(apellidoField);
-        actualizarClientePanel.add(edadLabel);
-        actualizarClientePanel.add(edadSpinner);
-        actualizarClientePanel.add(emailLabel);
-        actualizarClientePanel.add(emailField);
-        actualizarClientePanel.add(fonoLabel);
-        actualizarClientePanel.add(fonoField);
+        FocusListener focusListener = new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                JTextField textField = (JTextField) e.getSource();
+                String placeholder = (String) textField.getClientProperty("placeholder");
 
-        // Panel para los botones
-        JPanel buttonPanel = new JPanel();
+                if (placeholder != null && placeholder.equals(textField.getText())) {
+                    textField.setText("");
+                    textField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                JTextField textField = (JTextField) e.getSource();
+                String placeholder = (String) textField.getClientProperty("placeholder");
+
+                if (placeholder != null && textField.getText().isEmpty()) {
+                    textField.setText(placeholder);
+                    textField.setForeground(Color.GRAY);
+                }
+            }
+        };
+
+        nombreField.addFocusListener(focusListener);
+        apellidoField.addFocusListener(focusListener);
+        emailField.addFocusListener(focusListener);
+        fonoField.addFocusListener(focusListener);
+
+        actualizarClientePanel.add(nombreLabel, gbcNombreLabel);
+        actualizarClientePanel.add(nombreField, gbcNombreField);
+        actualizarClientePanel.add(apellidoLabel, gbcApellidoLabel);
+        actualizarClientePanel.add(apellidoField, gbcApellidoField);
+        actualizarClientePanel.add(edadLabel, gbcEdadLabel);
+        actualizarClientePanel.add(edadSpinner, gbcEdadField);
+        actualizarClientePanel.add(emailLabel, gbcEmailLabel);
+        actualizarClientePanel.add(emailField, gbcEmailField);
+        actualizarClientePanel.add(fonoLabel, gbcFonoLabel);
+        actualizarClientePanel.add(fonoField, gbcFonoField);
+
         JButton btnActualizar = new JButton("Actualizar");
-        JButton btnVolver = new JButton("Volver");
+        btnActualizar.setPreferredSize(new Dimension(150, 32));
+        btnActualizar.setFont(new Font("Arial", Font.PLAIN, btnFontSize));
+        gbcBtn.gridx = 0;
+        gbcBtn.gridy = 7;
+        gbcBtn.gridwidth = 2;
+        gbcBtn.insets = new Insets(20, 5, 20, 5);
 
-        buttonPanel.add(btnActualizar);
-        buttonPanel.add(btnVolver);
-
-        // Agregar los paneles al panel principal
-        mainPanel.add(actualizarClientePanel, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        // Agregar el panel principal a la ventana
-        getContentPane().add(mainPanel);
+        actualizarClientePanel.add(btnActualizar, gbcBtn);
 
         btnActualizar.addActionListener(new ActionListener() {
             @Override
@@ -508,15 +1094,9 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
-            }
-        });
-
-        setLocationRelativeTo(null); // Centrar en la pantalla
         setVisible(true);
+
+        return actualizarClientePanel;
     }
 
     private void addPlaceholder(JTextField textField, String placeholder) {
@@ -545,31 +1125,76 @@ public class InterfazBancoVirtual extends JFrame {
     }
 
 
-    private void buscarCliente() {
-        setTitle("Buscar cliente por RUT");
+    private JPanel buscarCliente() {
+        setTitle("Actualizar datos de un cliente");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
+        JPanel buscarClientePanel = new JPanel(new GridBagLayout());
 
-        JLabel rutLabel = new JLabel("RUT (con puntos y guión):");
+        GridBagConstraints gbcTitle = new GridBagConstraints();
+        GridBagConstraints gbcImage = new GridBagConstraints();
+        GridBagConstraints gbcLabel = new GridBagConstraints();
+        GridBagConstraints gbcField = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
+
+        JLabel title = new JLabel("Buscar cliente en la base de datos");
+        title.setFont(new Font("Arial", Font.BOLD, 25));
+        gbcTitle.gridx = 0;
+        gbcTitle.gridy = 0;
+        gbcTitle.gridwidth = 2; // Ocupa dos columnas
+        gbcTitle.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+        gbcTitle.insets = new Insets(100, 5, 20, 5);
+
+        ImageIcon imagen = crearIcono("/img/buscarCliente.png");
+        ImageIcon scaledImagen = escalarImagen(imagen, 100, 100);
+        JLabel labelImagen = new JLabel(scaledImagen);
+        gbcImage.gridx = 0;
+        gbcImage.gridy = 1;
+        gbcImage.gridwidth = 2;
+        gbcImage.insets = new Insets(0, 5, 20, 5);
+
+        JLabel rutLabel = new JLabel("Ingrese el RUT del cliente (con puntos y guión):");
+        rutLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        gbcLabel.gridx = 0;
+        gbcLabel.gridy = 2;
+        gbcLabel.insets = new Insets(20, 5, 20, 5);
+
         JTextField rutField = new JTextField();
+        rutField.setFont(new Font("Arial", Font.PLAIN, 15));
+        rutField.setPreferredSize(new Dimension(300, 40));
+        gbcField.gridx = 0;
+        gbcField.gridy = 3;
+        gbcField.insets = new Insets(0, 5, 20, 5);
 
         JButton btnBuscar = new JButton("Buscar");
-        JButton btnVolver = new JButton("Volver");
+        btnBuscar.setPreferredSize(new Dimension(100, 32));
+        btnBuscar.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbcBtn.gridx = 0;
+        gbcBtn.gridy = 4;
+        gbcBtn.gridwidth = 2;
+        gbcBtn.insets = new Insets(20, 5, 20, 5);
 
-        buscarClientePanel.add(rutLabel);
-        buscarClientePanel.add(rutField);
+        // Crear un borde compuesto
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(), // Borde grabado para efecto visual
+                BorderFactory.createEmptyBorder(-50, 10, 10, 10) // Márgenes internos
+        );
 
-        buscarClientePanel.add(btnBuscar);
-        buscarClientePanel.add(btnVolver);
+        // Añadir un margen superior externo para mover el recuadro hacia abajo
+        Border outerMargin = new EmptyBorder(0, 0, 0, 0);
+        Border titledBorder = BorderFactory.createCompoundBorder(
+                outerMargin,
+                border
+        );
 
-        getContentPane().removeAll(); // Limpiar el contenido actual
-        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
-        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
+        buscarClientePanel.add(title, gbcTitle);
+        buscarClientePanel.add(labelImagen, gbcImage);
+        buscarClientePanel.add(rutLabel, gbcLabel);
+        buscarClientePanel.add(rutField, gbcField);
+        buscarClientePanel.add(btnBuscar, gbcBtn);
 
-        // Configurar el tamaño y hacer visible la ventana
-        setSize(350, 250);
-        setLocationRelativeTo(null); // Centrar en la pantalla
+        buscarClientePanel.setBorder(titledBorder);
+
         setVisible(true);
 
         btnBuscar.addActionListener(new ActionListener() {
@@ -579,7 +1204,26 @@ public class InterfazBancoVirtual extends JFrame {
                     Object[] datos = controladorClientes.buscarCliente(rutField.getText());
                     if(datos.length > 0){
                         JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
-                        mostrarDatosCliente(datos);
+                        buscarClientePanel.remove(title);
+                        buscarClientePanel.remove(labelImagen);
+                        buscarClientePanel.remove(rutLabel);
+                        buscarClientePanel.remove(rutField);
+                        buscarClientePanel.remove(btnBuscar);
+                        buscarClientePanel.setBorder(null);
+
+                        GridBagConstraints newGbcTitle = new GridBagConstraints();
+
+                        newGbcTitle.gridx = 0;
+                        newGbcTitle.gridy = 0;
+                        newGbcTitle.gridwidth = 2; // Ocupa dos columnas
+                        newGbcTitle.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+                        newGbcTitle.insets = new Insets(0, 5, 20, 5);
+
+                        buscarClientePanel.add(title, newGbcTitle);
+                        buscarClientePanel.add(labelImagen, gbcImage);
+                        buscarClientePanel.add(mostrarDatosCliente(datos, buscarClientePanel));
+                        buscarClientePanel.revalidate(); // Revalida el contenido
+                        buscarClientePanel.repaint();
                     }
                     else {
                         JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
@@ -591,95 +1235,142 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
-            }
-        });
+        return buscarClientePanel;
     }
 
-    private void mostrarDatosCliente(Object[] datos) {
-        getContentPane().removeAll();
+    private JPanel mostrarDatosCliente(Object[] datos, JPanel buscarClientePanel) {
         setTitle("Datos del cliente:");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1500, 150);
 
         String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono", "¿Cuenta de ahorro?", "¿Cuenta corriente?"};
+
+        GridBagConstraints gbcTable = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
 
         // Datos
 
         DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
 
-        JTable table = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(table);
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
-
         tableModel.addRow(datos);
+        JTable table = new JTable(tableModel);
+
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        int[] anchos = {25, 80, 80, 50, 220, 100, 110, 120, 120};
+        for (int i = 0; i < columnas.length; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+        }
+        gbcTable.gridx = 0;
+        gbcTable.gridy = 2;
+        gbcTable.insets = new Insets(20, 5, 20, 5);
+
+        // Establecer un alto preferido para la tabla
+        int altoTotal = table.getRowHeight() * tableModel.getRowCount();
+        int anchoTotal = 0;
+        for (int ancho : anchos) {
+            anchoTotal += ancho;
+        }
+
+        table.setPreferredScrollableViewportSize(new Dimension(anchoTotal, altoTotal));
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        buscarClientePanel.add(scrollPane, gbcTable);
 
         // Botón de actualizado
         JButton btnActualizar = new JButton("Actualizar");
-        btnActualizar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Lógica para actualizar la lista de clientes
-                mostrarDatosCliente(controladorClientes.buscarCliente((String) datos[5]));
-            }
-        });
+        gbcBtn.gridx = 0;
+        gbcBtn.gridy = 4;
+        gbcBtn.gridwidth = 2;
+        gbcBtn.insets = new Insets(20, 0, 0, 0);
 
-        // Panel para el botón volver
-        JPanel buttonPanel = new JPanel();
-        JButton btnVolver = new JButton("Volver");
+        btnActualizar.setPreferredSize(new Dimension(150, 26));
+        btnActualizar.setFont(new Font("Arial", Font.PLAIN, 12));
 
-        buttonPanel.add(btnActualizar);
-        buttonPanel.add(btnVolver);
-
-        // Agregar el panel de botones a la parte inferior de la ventana
-        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+        buscarClientePanel.add(btnActualizar, gbcBtn);
 
         btnActualizar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mostrarDatosCliente(datos);
-            }
-        });
-
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
+                mostrarDatosCliente(datos, buscarClientePanel);
             }
         });
 
         setLocationRelativeTo(null); // Centrar en la pantalla
         setVisible(true);
+
+        return buscarClientePanel;
     }
 
-    private void eliminarCliente() {
-        setTitle("Eliminar cliente");
+    private JPanel eliminarCliente() {
+        setTitle("Actualizar datos de un cliente");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
+        JPanel eliminarClientePanel = new JPanel(new GridBagLayout());
 
-        JLabel rutLabel = new JLabel("RUT del cliente (con puntos y guión):");
+        GridBagConstraints gbcTitle = new GridBagConstraints();
+        GridBagConstraints gbcImage = new GridBagConstraints();
+        GridBagConstraints gbcLabel = new GridBagConstraints();
+        GridBagConstraints gbcField = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
+
+        JLabel title = new JLabel("Eliminar cliente de la base de datos");
+        title.setFont(new Font("Arial", Font.BOLD, 25));
+        gbcTitle.gridx = 0;
+        gbcTitle.gridy = 0;
+        gbcTitle.gridwidth = 2; // Ocupa dos columnas
+        gbcTitle.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+        gbcTitle.insets = new Insets(100, 5, 20, 5);
+
+        ImageIcon imagen = crearIcono("/img/eliminarCliente.png");
+        ImageIcon scaledImagen = escalarImagen(imagen, 100, 100);
+        JLabel labelImagen = new JLabel(scaledImagen);
+        gbcImage.gridx = 0;
+        gbcImage.gridy = 1;
+        gbcImage.gridwidth = 2;
+        gbcImage.insets = new Insets(0, 5, 20, 5);
+
+        JLabel rutLabel = new JLabel("Ingrese el RUT del cliente (con puntos y guión):");
+        rutLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        gbcLabel.gridx = 0;
+        gbcLabel.gridy = 2;
+        gbcLabel.insets = new Insets(20, 5, 20, 5);
+
         JTextField rutField = new JTextField();
+        rutField.setFont(new Font("Arial", Font.PLAIN, 15));
+        rutField.setPreferredSize(new Dimension(300, 40));
+        gbcField.gridx = 0;
+        gbcField.gridy = 3;
+        gbcField.insets = new Insets(0, 5, 20, 5);
 
         JButton btnEliminar = new JButton("Eliminar");
-        JButton btnVolver = new JButton("Volver");
+        btnEliminar.setPreferredSize(new Dimension(100, 32));
+        btnEliminar.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbcBtn.gridx = 0;
+        gbcBtn.gridy = 4;
+        gbcBtn.gridwidth = 2;
+        gbcBtn.insets = new Insets(20, 5, 20, 5);
 
-        buscarClientePanel.add(rutLabel);
-        buscarClientePanel.add(rutField);
+        // Crear un borde compuesto
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(), // Borde grabado para efecto visual
+                BorderFactory.createEmptyBorder(-50, 10, 10, 10) // Márgenes internos
+        );
 
-        buscarClientePanel.add(btnEliminar);
-        buscarClientePanel.add(btnVolver);
+        // Añadir un margen superior externo para mover el recuadro hacia abajo
+        Border outerMargin = new EmptyBorder(0, 0, 0, 0);
+        Border titledBorder = BorderFactory.createCompoundBorder(
+                outerMargin,
+                border
+        );
 
-        getContentPane().removeAll(); // Limpiar el contenido actual
-        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
-        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
+        eliminarClientePanel.add(title, gbcTitle);
+        eliminarClientePanel.add(labelImagen, gbcImage);
+        eliminarClientePanel.add(rutLabel, gbcLabel);
+        eliminarClientePanel.add(rutField, gbcField);
+        eliminarClientePanel.add(btnEliminar, gbcBtn);
 
-        // Configurar el tamaño y hacer visible la ventana
-        setSize(350, 250);
-        setLocationRelativeTo(null); // Centrar en la pantalla
+        eliminarClientePanel.setBorder(titledBorder);
+
         setVisible(true);
 
         btnEliminar.addActionListener(new ActionListener() {
@@ -688,31 +1379,24 @@ public class InterfazBancoVirtual extends JFrame {
                 if(validarRut(rutField.getText())){
                     Object[] datos = controladorClientes.buscarCliente(rutField.getText());
                     if(datos.length > 0){
-                        JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
                         if(controladorClientes.eliminarCliente((Integer) datos[0])){
-                            JOptionPane.showMessageDialog(buscarClientePanel, "El cliente " + datos[1] + " " + datos[2] + " ha sido eliminado exitosamente", "Eliminación de cuenta exitosa", JOptionPane.INFORMATION_MESSAGE);
-                            gestionClientes();
+                            JOptionPane.showMessageDialog(eliminarClientePanel, "El cliente " + datos[1] + " " + datos[2] + " ha sido eliminado exitosamente", "Eliminación de cuenta exitosa", JOptionPane.INFORMATION_MESSAGE);
                         }
                         else{
-                            JOptionPane.showMessageDialog(buscarClientePanel, "No se pudo eliminar al cliente", "Eliminación fallida", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(eliminarClientePanel, "No se pudo eliminar al cliente", "Eliminación fallida", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                     else {
-                        JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(eliminarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
                     }
                 }
                 else {
-                    JOptionPane.showMessageDialog(buscarClientePanel, "Ingrese un RUT válido", "RUT inválido", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(eliminarClientePanel, "Ingrese un RUT válido", "RUT inválido", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
-            }
-        });
+        return eliminarClientePanel;
     }
 
     private void gestionCuentasDeAhorro() {
