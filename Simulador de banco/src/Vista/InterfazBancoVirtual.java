@@ -181,7 +181,7 @@ public class InterfazBancoVirtual extends JFrame {
         GridBagConstraints gbcBotonClientes = new GridBagConstraints();
 
         ImageIcon imageClientes = crearIcono("/img/logoClientes.png");
-        ImageIcon scaledImageClientes = escalarImagen(imageClientes, 250, 200);
+        ImageIcon scaledImageClientes = escalarImagen(imageClientes, 250, 250);
         JLabel labelClientes = new JLabel(scaledImageClientes);
         gbcImagenClientes.insets = new Insets(60, 400, 10, 10);
         panel1.add(labelClientes, gbcImagenClientes);
@@ -1291,7 +1291,8 @@ public class InterfazBancoVirtual extends JFrame {
         btnActualizar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mostrarDatosCliente(datos, buscarClientePanel);
+                Object[] newDatos = controladorClientes.buscarCliente((String) datos[5]);
+                mostrarDatosCliente(newDatos, buscarClientePanel);
             }
         });
 
