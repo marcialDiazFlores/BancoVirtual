@@ -17,6 +17,8 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -290,7 +292,7 @@ public class InterfazBancoVirtual extends JFrame {
 
     private ImageIcon escalarImagen(ImageIcon icono, int ancho, int alto) {
         Image imagen = icono.getImage();
-        Image imagenEscalada = imagen.getScaledInstance(ancho, alto, java.awt.Image.SCALE_SMOOTH);
+        Image imagenEscalada = imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
         return new ImageIcon(imagenEscalada);
     }
 
@@ -915,7 +917,7 @@ public class InterfazBancoVirtual extends JFrame {
                         buscarClientePanel.remove(rutLabel);
                         buscarClientePanel.remove(rutField);
                         buscarClientePanel.remove(btnBuscar);
-                        buscarClientePanel.add(mostrarDatosYActualizar(datos, rutField.getText()));
+                        buscarClientePanel.add(mostrarDatosYActualizar(datos, rutField.getText(), buscarClientePanel));
                         buscarClientePanel.revalidate(); // Revalida el contenido
                         buscarClientePanel.repaint();
                     }
@@ -931,56 +933,141 @@ public class InterfazBancoVirtual extends JFrame {
         return buscarClientePanel;
     }
 
-    private JPanel mostrarDatosYActualizar(Object[] datos, String rut) {
+    private JPanel mostrarDatosYActualizar(Object[] datos, String rut, JPanel actualizarClientePanel) {
         setTitle("Gestión de clientes");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Panel para los campos de actualización
-        JPanel actualizarClientePanel = new JPanel(new GridBagLayout());
-
-        GridBagConstraints gbcLabel = new GridBagConstraints();
-        GridBagConstraints gbcField = new GridBagConstraints();
+        GridBagConstraints gbcNombreLabel = new GridBagConstraints();
+        GridBagConstraints gbcNombreField = new GridBagConstraints();
+        GridBagConstraints gbcApellidoLabel = new GridBagConstraints();
+        GridBagConstraints gbcApellidoField = new GridBagConstraints();
+        GridBagConstraints gbcEdadLabel = new GridBagConstraints();
+        GridBagConstraints gbcEdadField = new GridBagConstraints();
+        GridBagConstraints gbcEmailLabel = new GridBagConstraints();
+        GridBagConstraints gbcEmailField = new GridBagConstraints();
+        GridBagConstraints gbcFonoLabel = new GridBagConstraints();
+        GridBagConstraints gbcFonoField = new GridBagConstraints();
         GridBagConstraints gbcBtn = new GridBagConstraints();
-        int labelFontSize;
-        int fieldFontSize;
-        int btnFontSize;
+        int labelFontSize = 16;
+        int fieldFontSize = 15;
+        int btnFontSize = 16;
 
         // Etiqueta para el encabezado
 
         JLabel nombreLabel = new JLabel("Nombre:");
         JTextField nombreField = new JTextField();
+        nombreLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
+        nombreField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        nombreField.setPreferredSize(new Dimension(300, 40));
+        gbcNombreLabel.gridx = 0;
+        gbcNombreLabel.gridy = 2;
+        gbcNombreLabel.insets = new Insets(20, 5, 20, 5);
+        gbcNombreField.gridx = 1;
+        gbcNombreField.gridy = 2;
+        gbcNombreField.insets = new Insets(20, 5, 20, 5);
         addPlaceholder(nombreField, "(Nombre actual: " + ((String) datos[1]) + ")");
 
         JLabel apellidoLabel = new JLabel("Apellido:");
         JTextField apellidoField = new JTextField();
+        apellidoLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
+        apellidoField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        apellidoField.setPreferredSize(new Dimension(300, 40));
+        gbcApellidoLabel.gridx = 0;
+        gbcApellidoLabel.gridy = 3;
+        gbcApellidoLabel.insets = new Insets(0, 5, 20, 5);
+        gbcApellidoField.gridx = 1;
+        gbcApellidoField.gridy = 3;
+        gbcApellidoField.insets = new Insets(0, 5, 20, 5);
         addPlaceholder(apellidoField, "(Apellido actual: " + ((String) datos[2]) + ")");
 
         JLabel edadLabel = new JLabel("Edad:");
+        edadLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
         SpinnerModel edadModel = new SpinnerNumberModel(18, 1, 110, 1);
+        gbcEdadLabel.gridx = 0;
+        gbcEdadLabel.gridy = 4;
+        gbcEdadLabel.insets = new Insets(0, 5, 20, 5);
         JSpinner edadSpinner = new JSpinner(edadModel);
+        edadSpinner.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        edadSpinner.setPreferredSize(new Dimension(300, 40));
+        gbcEdadField.gridx = 1;
+        gbcEdadField.gridy = 4;
+        gbcEdadField.insets = new Insets(0, 5, 20, 5);
 
         JLabel emailLabel = new JLabel("Email:");
         JTextField emailField = new JTextField();
+        emailLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
+        emailField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        emailField.setPreferredSize(new Dimension(300, 40));
+        gbcEmailLabel.gridx = 0;
+        gbcEmailLabel.gridy = 5;
+        gbcEmailLabel.insets = new Insets(0, 5, 20, 5);
+        gbcEmailField.gridx = 1;
+        gbcEmailField.gridy = 5;
+        gbcEmailField.insets = new Insets(0, 5, 20, 5);
         addPlaceholder(emailField, "(Email actual: " + ((String) datos[4]) + ")");
 
         JLabel fonoLabel = new JLabel("Teléfono:");
         JTextField fonoField = new JTextField();
+        fonoLabel.setFont(new Font("Arial", Font.PLAIN, labelFontSize));
+        fonoField.setFont(new Font("Arial", Font.PLAIN, fieldFontSize));
+        fonoField.setPreferredSize(new Dimension(300, 40));
+        gbcFonoLabel.gridx = 0;
+        gbcFonoLabel.gridy = 6;
+        gbcFonoLabel.insets = new Insets(0, 5, 20, 5);
+        gbcFonoField.gridx = 1;
+        gbcFonoField.gridy = 6;
+        gbcFonoField.insets = new Insets(0, 5, 20, 5);
         addPlaceholder(fonoField, "(Teléfono actual: " + ((String) datos[6]) + ")");
 
-        actualizarClientePanel.add(nombreLabel);
-        actualizarClientePanel.add(nombreField);
-        actualizarClientePanel.add(apellidoLabel);
-        actualizarClientePanel.add(apellidoField);
-        actualizarClientePanel.add(edadLabel);
-        actualizarClientePanel.add(edadSpinner);
-        actualizarClientePanel.add(emailLabel);
-        actualizarClientePanel.add(emailField);
-        actualizarClientePanel.add(fonoLabel);
-        actualizarClientePanel.add(fonoField);
+        FocusListener focusListener = new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                JTextField textField = (JTextField) e.getSource();
+                String placeholder = (String) textField.getClientProperty("placeholder");
+
+                if (placeholder != null && placeholder.equals(textField.getText())) {
+                    textField.setText("");
+                    textField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                JTextField textField = (JTextField) e.getSource();
+                String placeholder = (String) textField.getClientProperty("placeholder");
+
+                if (placeholder != null && textField.getText().isEmpty()) {
+                    textField.setText(placeholder);
+                    textField.setForeground(Color.GRAY);
+                }
+            }
+        };
+
+        nombreField.addFocusListener(focusListener);
+        apellidoField.addFocusListener(focusListener);
+        emailField.addFocusListener(focusListener);
+        fonoField.addFocusListener(focusListener);
+
+        actualizarClientePanel.add(nombreLabel, gbcNombreLabel);
+        actualizarClientePanel.add(nombreField, gbcNombreField);
+        actualizarClientePanel.add(apellidoLabel, gbcApellidoLabel);
+        actualizarClientePanel.add(apellidoField, gbcApellidoField);
+        actualizarClientePanel.add(edadLabel, gbcEdadLabel);
+        actualizarClientePanel.add(edadSpinner, gbcEdadField);
+        actualizarClientePanel.add(emailLabel, gbcEmailLabel);
+        actualizarClientePanel.add(emailField, gbcEmailField);
+        actualizarClientePanel.add(fonoLabel, gbcFonoLabel);
+        actualizarClientePanel.add(fonoField, gbcFonoField);
 
         JButton btnActualizar = new JButton("Actualizar");
+        btnActualizar.setPreferredSize(new Dimension(150, 32));
+        btnActualizar.setFont(new Font("Arial", Font.PLAIN, btnFontSize));
+        gbcBtn.gridx = 0;
+        gbcBtn.gridy = 7;
+        gbcBtn.gridwidth = 2;
+        gbcBtn.insets = new Insets(20, 5, 20, 5);
 
-        actualizarClientePanel.add(btnActualizar);
+        actualizarClientePanel.add(btnActualizar, gbcBtn);
 
         btnActualizar.addActionListener(new ActionListener() {
             @Override

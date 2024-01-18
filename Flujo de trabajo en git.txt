@@ -1,0 +1,33 @@
+Trabajar en la rama "BancoVirtual":
+
+git checkout BancoVirtual
+
+Realiza tus cambios y commits en esta rama localmente.
+
+Hacer push de la rama "BancoVirtual" remota:
+
+git push origin BancoVirtual
+
+Esto enviará tus cambios a la rama "BancoVirtual" en GitHub.
+
+Cambiar a la rama "main" local:
+
+git checkout main
+
+Hacer pull de los cambios remotos de la rama "main":
+
+git pull origin main
+
+Asegúrate de tener los últimos cambios de la rama "main" antes de fusionar.
+
+Fusionar los cambios de "BancoVirtual" en "main":
+
+git merge BancoVirtual
+
+Resuelve cualquier conflicto que pueda surgir durante la fusión.
+
+Hacer push de los cambios a la rama "main" remota:
+
+git push origin main
+
+Estos pasos asegurarán que tus cambios primero se reflejen en la rama "BancoVirtual" remota y luego se fusionen en la rama "main" remota. Este flujo de trabajo es estándar y debería evitar problemas futuros. Recuerda siempre hacer pull antes de fusionar para asegurarte de tener la última versión de la rama remota antes de aplicar tus cambios.
