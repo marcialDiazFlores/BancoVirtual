@@ -503,7 +503,10 @@ public class InterfazBancoVirtual extends JFrame {
         btnBuscarCliente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                buscarCliente();
+                contenidoPanel.removeAll();
+                contenidoPanel.add(buscarCliente());
+                contenidoPanel.revalidate(); // Revalida el contenido
+                contenidoPanel.repaint();
             }
         });
 
@@ -1122,31 +1125,76 @@ public class InterfazBancoVirtual extends JFrame {
     }
 
 
-    private void buscarCliente() {
-        setTitle("Buscar cliente por RUT");
+    private JPanel buscarCliente() {
+        setTitle("Actualizar datos de un cliente");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
+        JPanel buscarClientePanel = new JPanel(new GridBagLayout());
 
-        JLabel rutLabel = new JLabel("RUT (con puntos y guión):");
+        GridBagConstraints gbcTitle = new GridBagConstraints();
+        GridBagConstraints gbcImage = new GridBagConstraints();
+        GridBagConstraints gbcLabel = new GridBagConstraints();
+        GridBagConstraints gbcField = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
+
+        JLabel title = new JLabel("Buscar cliente en la base de datos");
+        title.setFont(new Font("Arial", Font.BOLD, 25));
+        gbcTitle.gridx = 0;
+        gbcTitle.gridy = 0;
+        gbcTitle.gridwidth = 2; // Ocupa dos columnas
+        gbcTitle.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+        gbcTitle.insets = new Insets(100, 5, 20, 5);
+
+        ImageIcon imagen = crearIcono("/img/buscarCliente.png");
+        ImageIcon scaledImagen = escalarImagen(imagen, 100, 100);
+        JLabel labelImagen = new JLabel(scaledImagen);
+        gbcImage.gridx = 0;
+        gbcImage.gridy = 1;
+        gbcImage.gridwidth = 2;
+        gbcImage.insets = new Insets(0, 5, 20, 5);
+
+        JLabel rutLabel = new JLabel("Ingrese el RUT del cliente (con puntos y guión):");
+        rutLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        gbcLabel.gridx = 0;
+        gbcLabel.gridy = 2;
+        gbcLabel.insets = new Insets(20, 5, 20, 5);
+
         JTextField rutField = new JTextField();
+        rutField.setFont(new Font("Arial", Font.PLAIN, 15));
+        rutField.setPreferredSize(new Dimension(300, 40));
+        gbcField.gridx = 0;
+        gbcField.gridy = 3;
+        gbcField.insets = new Insets(0, 5, 20, 5);
 
         JButton btnBuscar = new JButton("Buscar");
-        JButton btnVolver = new JButton("Volver");
+        btnBuscar.setPreferredSize(new Dimension(100, 32));
+        btnBuscar.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbcBtn.gridx = 0;
+        gbcBtn.gridy = 4;
+        gbcBtn.gridwidth = 2;
+        gbcBtn.insets = new Insets(20, 5, 20, 5);
 
-        buscarClientePanel.add(rutLabel);
-        buscarClientePanel.add(rutField);
+        // Crear un borde compuesto
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(), // Borde grabado para efecto visual
+                BorderFactory.createEmptyBorder(-50, 10, 10, 10) // Márgenes internos
+        );
 
-        buscarClientePanel.add(btnBuscar);
-        buscarClientePanel.add(btnVolver);
+        // Añadir un margen superior externo para mover el recuadro hacia abajo
+        Border outerMargin = new EmptyBorder(0, 0, 0, 0);
+        Border titledBorder = BorderFactory.createCompoundBorder(
+                outerMargin,
+                border
+        );
 
-        getContentPane().removeAll(); // Limpiar el contenido actual
-        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
-        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
+        buscarClientePanel.add(title, gbcTitle);
+        buscarClientePanel.add(labelImagen, gbcImage);
+        buscarClientePanel.add(rutLabel, gbcLabel);
+        buscarClientePanel.add(rutField, gbcField);
+        buscarClientePanel.add(btnBuscar, gbcBtn);
 
-        // Configurar el tamaño y hacer visible la ventana
-        setSize(350, 250);
-        setLocationRelativeTo(null); // Centrar en la pantalla
+        buscarClientePanel.setBorder(titledBorder);
+
         setVisible(true);
 
         btnBuscar.addActionListener(new ActionListener() {
@@ -1156,7 +1204,26 @@ public class InterfazBancoVirtual extends JFrame {
                     Object[] datos = controladorClientes.buscarCliente(rutField.getText());
                     if(datos.length > 0){
                         JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
-                        mostrarDatosCliente(datos);
+                        buscarClientePanel.remove(title);
+                        buscarClientePanel.remove(labelImagen);
+                        buscarClientePanel.remove(rutLabel);
+                        buscarClientePanel.remove(rutField);
+                        buscarClientePanel.remove(btnBuscar);
+                        buscarClientePanel.setBorder(null);
+
+                        GridBagConstraints newGbcTitle = new GridBagConstraints();
+
+                        newGbcTitle.gridx = 0;
+                        newGbcTitle.gridy = 0;
+                        newGbcTitle.gridwidth = 2; // Ocupa dos columnas
+                        newGbcTitle.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+                        newGbcTitle.insets = new Insets(0, 5, 20, 5);
+
+                        buscarClientePanel.add(title, newGbcTitle);
+                        buscarClientePanel.add(labelImagen, gbcImage);
+                        buscarClientePanel.add(mostrarDatosCliente(datos, buscarClientePanel));
+                        buscarClientePanel.revalidate(); // Revalida el contenido
+                        buscarClientePanel.repaint();
                     }
                     else {
                         JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
@@ -1168,68 +1235,70 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
-            }
-        });
+        return buscarClientePanel;
     }
 
-    private void mostrarDatosCliente(Object[] datos) {
-        getContentPane().removeAll();
+    private JPanel mostrarDatosCliente(Object[] datos, JPanel buscarClientePanel) {
         setTitle("Datos del cliente:");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1500, 150);
 
         String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono", "¿Cuenta de ahorro?", "¿Cuenta corriente?"};
+
+        GridBagConstraints gbcTable = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
 
         // Datos
 
         DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
 
-        JTable table = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(table);
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
-
         tableModel.addRow(datos);
+        JTable table = new JTable(tableModel);
+
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        int[] anchos = {25, 80, 80, 50, 220, 100, 110, 120, 120};
+        for (int i = 0; i < columnas.length; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+        }
+        gbcTable.gridx = 0;
+        gbcTable.gridy = 2;
+        gbcTable.insets = new Insets(20, 5, 20, 5);
+
+        // Establecer un alto preferido para la tabla
+        int altoTotal = table.getRowHeight() * tableModel.getRowCount();
+        int anchoTotal = 0;
+        for (int ancho : anchos) {
+            anchoTotal += ancho;
+        }
+
+        table.setPreferredScrollableViewportSize(new Dimension(anchoTotal, altoTotal));
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        buscarClientePanel.add(scrollPane, gbcTable);
 
         // Botón de actualizado
         JButton btnActualizar = new JButton("Actualizar");
-        btnActualizar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Lógica para actualizar la lista de clientes
-                mostrarDatosCliente(controladorClientes.buscarCliente((String) datos[5]));
-            }
-        });
+        gbcBtn.gridx = 0;
+        gbcBtn.gridy = 4;
+        gbcBtn.gridwidth = 2;
+        gbcBtn.insets = new Insets(20, 0, 0, 0);
 
-        // Panel para el botón volver
-        JPanel buttonPanel = new JPanel();
-        JButton btnVolver = new JButton("Volver");
+        btnActualizar.setPreferredSize(new Dimension(150, 26));
+        btnActualizar.setFont(new Font("Arial", Font.PLAIN, 12));
 
-        buttonPanel.add(btnActualizar);
-        buttonPanel.add(btnVolver);
-
-        // Agregar el panel de botones a la parte inferior de la ventana
-        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+        buscarClientePanel.add(btnActualizar, gbcBtn);
 
         btnActualizar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mostrarDatosCliente(datos);
-            }
-        });
-
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
+                mostrarDatosCliente(datos, buscarClientePanel);
             }
         });
 
         setLocationRelativeTo(null); // Centrar en la pantalla
         setVisible(true);
+
+        return buscarClientePanel;
     }
 
     private JPanel eliminarCliente() {
