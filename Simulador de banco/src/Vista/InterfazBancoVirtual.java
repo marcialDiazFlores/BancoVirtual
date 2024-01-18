@@ -1,6 +1,7 @@
 package Vista;
 
 import Controlador.*;
+import com.sun.management.GarbageCollectionNotificationInfo;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -836,17 +837,72 @@ public class InterfazBancoVirtual extends JFrame {
         setTitle("Actualizar datos de un cliente");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
+        JPanel buscarClientePanel = new JPanel(new GridBagLayout());
 
-        JLabel rutLabel = new JLabel("RUT del cliente (con puntos y guión):");
+        GridBagConstraints gbcTitle = new GridBagConstraints();
+        GridBagConstraints gbcImage = new GridBagConstraints();
+        GridBagConstraints gbcLabel = new GridBagConstraints();
+        GridBagConstraints gbcField = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
+
+        JLabel title = new JLabel("Actualizar datos del cliente");
+        title.setFont(new Font("Arial", Font.BOLD, 25));
+        gbcTitle.gridx = 0;
+        gbcTitle.gridy = 0;
+        gbcTitle.gridwidth = 2; // Ocupa dos columnas
+        gbcTitle.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+        gbcTitle.insets = new Insets(100, 5, 20, 5);
+
+        ImageIcon imagen = crearIcono("/img/actualizarDatos.png");
+        ImageIcon scaledImagen = escalarImagen(imagen, 100, 100);
+        JLabel labelImagen = new JLabel(scaledImagen);
+        gbcImage.gridx = 0;
+        gbcImage.gridy = 1;
+        gbcImage.gridwidth = 2;
+        gbcImage.insets = new Insets(0, 5, 20, 5);
+
+        JLabel rutLabel = new JLabel("Ingrese el RUT del cliente (con puntos y guión):");
+        rutLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        gbcLabel.gridx = 0;
+        gbcLabel.gridy = 2;
+        gbcLabel.insets = new Insets(20, 5, 20, 5);
+
         JTextField rutField = new JTextField();
+        rutField.setFont(new Font("Arial", Font.PLAIN, 15));
+        rutField.setPreferredSize(new Dimension(300, 40));
+        gbcField.gridx = 0;
+        gbcField.gridy = 3;
+        gbcField.insets = new Insets(0, 5, 20, 5);
 
         JButton btnBuscar = new JButton("Buscar");
+        btnBuscar.setPreferredSize(new Dimension(100, 32));
+        btnBuscar.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbcBtn.gridx = 0;
+        gbcBtn.gridy = 4;
+        gbcBtn.gridwidth = 2;
+        gbcBtn.insets = new Insets(20, 5, 20, 5);
 
-        buscarClientePanel.add(rutLabel);
-        buscarClientePanel.add(rutField);
+        // Crear un borde compuesto
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(), // Borde grabado para efecto visual
+                BorderFactory.createEmptyBorder(-50, 10, 10, 10) // Márgenes internos
+        );
 
-        buscarClientePanel.add(btnBuscar);
+        // Añadir un margen superior externo para mover el recuadro hacia abajo
+        Border outerMargin = new EmptyBorder(0, 0, 0, 0);
+        Border titledBorder = BorderFactory.createCompoundBorder(
+                outerMargin,
+                border
+        );
+
+        buscarClientePanel.add(title, gbcTitle);
+        buscarClientePanel.add(labelImagen, gbcImage);
+        buscarClientePanel.add(rutLabel, gbcLabel);
+        buscarClientePanel.add(rutField, gbcField);
+        buscarClientePanel.add(btnBuscar, gbcBtn);
+
+        buscarClientePanel.setBorder(titledBorder);
+
         setVisible(true);
 
         btnBuscar.addActionListener(new ActionListener() {
@@ -856,7 +912,12 @@ public class InterfazBancoVirtual extends JFrame {
                     Object[] datos = controladorClientes.buscarCliente(rutField.getText());
                     if(datos.length > 0){
                         JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
-                        mostrarDatosYActualizar(datos, rutField.getText());
+                        buscarClientePanel.remove(rutLabel);
+                        buscarClientePanel.remove(rutField);
+                        buscarClientePanel.remove(btnBuscar);
+                        buscarClientePanel.add(mostrarDatosYActualizar(datos, rutField.getText()));
+                        buscarClientePanel.revalidate(); // Revalida el contenido
+                        buscarClientePanel.repaint();
                     }
                     else {
                         JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
@@ -870,34 +931,21 @@ public class InterfazBancoVirtual extends JFrame {
         return buscarClientePanel;
     }
 
-    private void mostrarDatosYActualizar(Object[] datos, String rut) {
-        getContentPane().removeAll();
-        setTitle("Actualizar cliente");
+    private JPanel mostrarDatosYActualizar(Object[] datos, String rut) {
+        setTitle("Gestión de clientes");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 300);
-
-        // Crear un panel para organizar la interfaz
-        JPanel mainPanel = new JPanel(new BorderLayout());
-
-        // Etiqueta para el encabezado
-        JLabel actualizarLabel = new JLabel("Actualizar cliente");
-        actualizarLabel.setHorizontalAlignment(JLabel.CENTER);
-        mainPanel.add(actualizarLabel, BorderLayout.NORTH);
-
-        String[] columnas = {"ID", "Nombre", "Apellido", "Edad", "Email", "RUT", "Teléfono"};
-
-        // Datos
-        DefaultTableModel tableModel = new DefaultTableModel(null, columnas);
-        JTable table = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(table);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-
-        tableModel.addRow(datos);
-        setVisible(true); // Asegura que la ventana sea visible
-        table.setVisible(true);
 
         // Panel para los campos de actualización
-        JPanel actualizarClientePanel = new JPanel(new GridLayout(6, 2));
+        JPanel actualizarClientePanel = new JPanel(new GridBagLayout());
+
+        GridBagConstraints gbcLabel = new GridBagConstraints();
+        GridBagConstraints gbcField = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
+        int labelFontSize;
+        int fieldFontSize;
+        int btnFontSize;
+
+        // Etiqueta para el encabezado
 
         JLabel nombreLabel = new JLabel("Nombre:");
         JTextField nombreField = new JTextField();
@@ -930,20 +978,9 @@ public class InterfazBancoVirtual extends JFrame {
         actualizarClientePanel.add(fonoLabel);
         actualizarClientePanel.add(fonoField);
 
-        // Panel para los botones
-        JPanel buttonPanel = new JPanel();
         JButton btnActualizar = new JButton("Actualizar");
-        JButton btnVolver = new JButton("Volver");
 
-        buttonPanel.add(btnActualizar);
-        buttonPanel.add(btnVolver);
-
-        // Agregar los paneles al panel principal
-        mainPanel.add(actualizarClientePanel, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        // Agregar el panel principal a la ventana
-        getContentPane().add(mainPanel);
+        actualizarClientePanel.add(btnActualizar);
 
         btnActualizar.addActionListener(new ActionListener() {
             @Override
@@ -964,15 +1001,9 @@ public class InterfazBancoVirtual extends JFrame {
             }
         });
 
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
-            }
-        });
-
-        setLocationRelativeTo(null); // Centrar en la pantalla
         setVisible(true);
+
+        return actualizarClientePanel;
     }
 
     private void addPlaceholder(JTextField textField, String placeholder) {
