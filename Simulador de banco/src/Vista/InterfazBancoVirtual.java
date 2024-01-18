@@ -493,7 +493,10 @@ public class InterfazBancoVirtual extends JFrame {
         btnEliminarCliente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                eliminarCliente();
+                contenidoPanel.removeAll();
+                contenidoPanel.add(eliminarCliente());
+                contenidoPanel.revalidate(); // Revalida el contenido
+                contenidoPanel.repaint();
             }
         });
 
@@ -1229,31 +1232,76 @@ public class InterfazBancoVirtual extends JFrame {
         setVisible(true);
     }
 
-    private void eliminarCliente() {
-        setTitle("Eliminar cliente");
+    private JPanel eliminarCliente() {
+        setTitle("Actualizar datos de un cliente");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel buscarClientePanel = new JPanel(new GridLayout(7, 2));
+        JPanel eliminarClientePanel = new JPanel(new GridBagLayout());
 
-        JLabel rutLabel = new JLabel("RUT del cliente (con puntos y guión):");
+        GridBagConstraints gbcTitle = new GridBagConstraints();
+        GridBagConstraints gbcImage = new GridBagConstraints();
+        GridBagConstraints gbcLabel = new GridBagConstraints();
+        GridBagConstraints gbcField = new GridBagConstraints();
+        GridBagConstraints gbcBtn = new GridBagConstraints();
+
+        JLabel title = new JLabel("Eliminar cliente de la base de datos");
+        title.setFont(new Font("Arial", Font.BOLD, 25));
+        gbcTitle.gridx = 0;
+        gbcTitle.gridy = 0;
+        gbcTitle.gridwidth = 2; // Ocupa dos columnas
+        gbcTitle.anchor = GridBagConstraints.CENTER; // Centrado horizontal
+        gbcTitle.insets = new Insets(100, 5, 20, 5);
+
+        ImageIcon imagen = crearIcono("/img/eliminarCliente.png");
+        ImageIcon scaledImagen = escalarImagen(imagen, 100, 100);
+        JLabel labelImagen = new JLabel(scaledImagen);
+        gbcImage.gridx = 0;
+        gbcImage.gridy = 1;
+        gbcImage.gridwidth = 2;
+        gbcImage.insets = new Insets(0, 5, 20, 5);
+
+        JLabel rutLabel = new JLabel("Ingrese el RUT del cliente (con puntos y guión):");
+        rutLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        gbcLabel.gridx = 0;
+        gbcLabel.gridy = 2;
+        gbcLabel.insets = new Insets(20, 5, 20, 5);
+
         JTextField rutField = new JTextField();
+        rutField.setFont(new Font("Arial", Font.PLAIN, 15));
+        rutField.setPreferredSize(new Dimension(300, 40));
+        gbcField.gridx = 0;
+        gbcField.gridy = 3;
+        gbcField.insets = new Insets(0, 5, 20, 5);
 
         JButton btnEliminar = new JButton("Eliminar");
-        JButton btnVolver = new JButton("Volver");
+        btnEliminar.setPreferredSize(new Dimension(100, 32));
+        btnEliminar.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbcBtn.gridx = 0;
+        gbcBtn.gridy = 4;
+        gbcBtn.gridwidth = 2;
+        gbcBtn.insets = new Insets(20, 5, 20, 5);
 
-        buscarClientePanel.add(rutLabel);
-        buscarClientePanel.add(rutField);
+        // Crear un borde compuesto
+        Border border = BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(), // Borde grabado para efecto visual
+                BorderFactory.createEmptyBorder(-50, 10, 10, 10) // Márgenes internos
+        );
 
-        buscarClientePanel.add(btnEliminar);
-        buscarClientePanel.add(btnVolver);
+        // Añadir un margen superior externo para mover el recuadro hacia abajo
+        Border outerMargin = new EmptyBorder(0, 0, 0, 0);
+        Border titledBorder = BorderFactory.createCompoundBorder(
+                outerMargin,
+                border
+        );
 
-        getContentPane().removeAll(); // Limpiar el contenido actual
-        getContentPane().setLayout(new BorderLayout()); // Usar BorderLayout
-        getContentPane().add(buscarClientePanel, BorderLayout.CENTER);
+        eliminarClientePanel.add(title, gbcTitle);
+        eliminarClientePanel.add(labelImagen, gbcImage);
+        eliminarClientePanel.add(rutLabel, gbcLabel);
+        eliminarClientePanel.add(rutField, gbcField);
+        eliminarClientePanel.add(btnEliminar, gbcBtn);
 
-        // Configurar el tamaño y hacer visible la ventana
-        setSize(350, 250);
-        setLocationRelativeTo(null); // Centrar en la pantalla
+        eliminarClientePanel.setBorder(titledBorder);
+
         setVisible(true);
 
         btnEliminar.addActionListener(new ActionListener() {
@@ -1262,31 +1310,24 @@ public class InterfazBancoVirtual extends JFrame {
                 if(validarRut(rutField.getText())){
                     Object[] datos = controladorClientes.buscarCliente(rutField.getText());
                     if(datos.length > 0){
-                        JOptionPane.showMessageDialog(buscarClientePanel, "Cliente encontrado en la base de datos", "Búsqueda exitosa", JOptionPane.INFORMATION_MESSAGE);
                         if(controladorClientes.eliminarCliente((Integer) datos[0])){
-                            JOptionPane.showMessageDialog(buscarClientePanel, "El cliente " + datos[1] + " " + datos[2] + " ha sido eliminado exitosamente", "Eliminación de cuenta exitosa", JOptionPane.INFORMATION_MESSAGE);
-                            gestionClientes();
+                            JOptionPane.showMessageDialog(eliminarClientePanel, "El cliente " + datos[1] + " " + datos[2] + " ha sido eliminado exitosamente", "Eliminación de cuenta exitosa", JOptionPane.INFORMATION_MESSAGE);
                         }
                         else{
-                            JOptionPane.showMessageDialog(buscarClientePanel, "No se pudo eliminar al cliente", "Eliminación fallida", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(eliminarClientePanel, "No se pudo eliminar al cliente", "Eliminación fallida", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                     else {
-                        JOptionPane.showMessageDialog(buscarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(eliminarClientePanel, "No se encontró al cliente en la base de datos", "Búsqueda fallida", JOptionPane.ERROR_MESSAGE);
                     }
                 }
                 else {
-                    JOptionPane.showMessageDialog(buscarClientePanel, "Ingrese un RUT válido", "RUT inválido", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(eliminarClientePanel, "Ingrese un RUT válido", "RUT inválido", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        btnVolver.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gestionClientes();
-            }
-        });
+        return eliminarClientePanel;
     }
 
     private void gestionCuentasDeAhorro() {
