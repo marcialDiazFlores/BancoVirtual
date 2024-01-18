@@ -5,7 +5,7 @@ import Controlador.*;
 import java.util.Scanner;
 
 
-public class BancoVirtual {
+public class Validaciones {
     private static ControladorClientes controladorClientes;
     private static ControladorCuentasDeAhorro controladorCuentasDeAhorro;
     private static ControladorCuentasCorrientes controladorCuentasCorrientes;
@@ -703,13 +703,23 @@ public class BancoVirtual {
     }
 
     public static boolean validarNombre(String nombre) {
-        String regex = "^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+$";
-        return !nombre.isEmpty() && nombre.matches(regex) && (nombre.length() >= 3) && (nombre.length() <= 12);
+        if (nombre != null) {
+            String regex = "^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+$";
+            return !nombre.isEmpty() && nombre.matches(regex) && (nombre.length() >= 3) && (nombre.length() <= 12);
+        }
+        else {
+            return false;
+        }
     }
 
     public static boolean validarApellido(String apellido) {
-        String regex = "^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+$";
-        return !apellido.isEmpty() && apellido.matches(regex) && (apellido.length() >= 3) && (apellido.length() <= 12);
+        if (apellido != null) {
+            String regex = "^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+$";
+            return !apellido.isEmpty() && apellido.matches(regex) && (apellido.length() >= 3) && (apellido.length() <= 11);
+        }
+        else {
+            return false;
+        }
     }
 
     public static boolean validarEdad(int edad) {
@@ -717,8 +727,13 @@ public class BancoVirtual {
     }
 
     public static boolean validarEmail(String email) {
-        String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-        return email.matches(regex);
+        if (email != null) {
+            String regex = "^[A-Za-z0-9]+([_.+-][A-Za-z0-9]+)*@[A-Za-z0-9]+([.-][A-Za-z0-9]+)*$";
+            return email.matches(regex) && email.length() >= 5 && email.length() <= 30;
+        }
+        else {
+            return false;
+        }
     }
     public static boolean validarRut(String rut) {
 
@@ -746,28 +761,38 @@ public class BancoVirtual {
     }
 
     public static boolean validarTelefono(String telefono) {
-        String regex = "^(\\+[1-9]\\d{0,11}|\\d{6,10})$";
-        return telefono.matches(regex);
+        if (telefono != null) {
+            String regex = "^(\\+?56)?\\d{6,10}$";
+            return telefono.matches(regex) && telefono.length() >= 8 && telefono.length() <= 16;
+        }
+        else {
+            return false;
+        }
     }
 
     public static boolean validarSaldo(int saldo) {
-        return saldo > 0;
+        return saldo >= 0 && saldo < 50000000;
     }
     public static boolean validarTasaInteres(double tasaInteres) {
-        return tasaInteres > 0;
+        return tasaInteres > 3 && tasaInteres < 20;
     }
     public static boolean validarTopeMinimo(int topeMinimo) {
-        return topeMinimo > 0;
+        return topeMinimo >= 0 && topeMinimo <= 5000000;
     }
 
     public static boolean validarSobregiro(int sobregiro) {
-        return sobregiro > 0 && sobregiro < 1000000;
+        return sobregiro > 0 && sobregiro < 2000000;
     }
 
     public static boolean validarContrasena(String contrasena) {
-        // Al menos un número, una letra mayúscula y longitud entre 5 y 10 caracteres
-        String regex = "^(?=.*[0-9])(?=.*[A-Z]).{5,10}$";
-        return contrasena.matches(regex);
+        if (contrasena != null) {
+            // Al menos un número, una letra mayúscula y longitud entre 5 y 10 caracteres
+            String regex = "^(?=.*[0-9])(?=.*[A-Z]).{5,10}$";
+            return contrasena.matches(regex);
+        }
+        else {
+            return false;
+        }
     }
 
     private static String capturarNombre() {
