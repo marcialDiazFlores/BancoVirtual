@@ -4,18 +4,6 @@ Gestión de clientes:
 
  Inserción de clientes:
 
-  Validar datos de entrada:
-
-   Testear validación de nombre (longitud adecuada, solo letras (sin espacios en blanco), validar que el nombre exista??)
-
-   Testear validación de apellido (longitud adecuada, solo letras (sin espacios en blanco), validar que el apellido exista??)
-
-   Testear validación de edad (entre 18 y 110, solo numeros enteros)
-
-   Testear validación de RUT (longitud adecuada, estructura adecuada, validez legal, solo letras y k)
-
-   Testear validación de teléfono (longitud adecuada, solo números y "+", validar que sea un telefono chileno???)
-
   Testear creación de objeto cliente (Modelo)
 
   Testear manejo de excepciones SQL controlador.crearCliente

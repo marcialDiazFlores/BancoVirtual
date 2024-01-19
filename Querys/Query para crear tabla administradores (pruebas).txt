@@ -1,0 +1,14 @@
+CREATE TABLE administradores (
+    ID SERIAL PRIMARY KEY,
+    Nombre VARCHAR(255) NOT NULL,
+    Apellido VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    RUT VARCHAR(20) NOT NULL,
+    Contrasena VARCHAR(20) NOT NULL,
+    Fono VARCHAR(20) NOT NULL
+);
+
+INSERT INTO administradores (Nombre, Apellido, Email, RUT, Contrasena, Fono) VALUES
+    ('Pedro', 'Gómez', 'pedro.gomez@gmail.com', '16.789.012-3', 'Admin3', '+56976543210'),
+    ('Laura', 'Hernández', 'laura.hernandez@yahoo.com', '18.901.234-5', 'Admin4', '+56998765432'),
+    ('Andrés', 'López', 'andres.lopez@outlook.com', '14.567.890-1', 'Admin5', '+56912345678');

@@ -1,0 +1,16 @@
+CREATE TABLE clientes (
+    ID SERIAL PRIMARY KEY,
+    Nombre VARCHAR(255) NOT NULL,
+    Apellido VARCHAR(255) NOT NULL,
+    Edad INTEGER NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    RUT VARCHAR(20) NOT NULL,
+    Fono VARCHAR(20) NOT NULL
+);
+
+INSERT INTO clientes (Nombre, Apellido, Edad, Email, RUT, Fono) VALUES
+    ('Maria', 'Gutierrez', 30, 'maria.gutierrez@gmail.com', '15.276.984-8', '+56976543210'),
+    ('Javier', 'Díaz', 35, 'javier.diaz@yahoo.com', '11.887.234-5', '+56998765432'),
+    ('Sofia', 'Vargas', 28, 'sofia.vargas@outlook.com', '19.453.671-2', '+56912345678'),
+    ('Rodrigo', 'Torres', 42, 'rodrigo.torres@hotmail.com', '14.567.890-1', '+56987654321'),
+    ('Carla', 'López', 25, 'carla.lopez@icloud.com', '17.890.123-4', '+56923456789');
