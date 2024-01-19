@@ -1,7 +1,6 @@
 package Vista;
 
 import Controlador.*;
-import com.sun.management.GarbageCollectionNotificationInfo;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -11,8 +10,6 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumnModel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -21,9 +18,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
-import static Vista.BancoVirtual.*;
+import static Vista.Validaciones.*;
 
 public class InterfazBancoVirtual extends JFrame {
     private ControladorClientes controladorClientes;
@@ -32,6 +28,7 @@ public class InterfazBancoVirtual extends JFrame {
     private ControladorAdministradores controladorAdministradores;
 
     public InterfazBancoVirtual() {
+        getContentPane().removeAll();
         // Inicializar controladores
         controladorClientes = new ControladorClientes();
         controladorCuentasDeAhorro = new ControladorCuentasDeAhorro();
@@ -181,7 +178,7 @@ public class InterfazBancoVirtual extends JFrame {
         GridBagConstraints gbcBotonClientes = new GridBagConstraints();
 
         ImageIcon imageClientes = crearIcono("/img/logoClientes.png");
-        ImageIcon scaledImageClientes = escalarImagen(imageClientes, 250, 200);
+        ImageIcon scaledImageClientes = escalarImagen(imageClientes, 200, 200);
         JLabel labelClientes = new JLabel(scaledImageClientes);
         gbcImagenClientes.insets = new Insets(60, 400, 10, 10);
         panel1.add(labelClientes, gbcImagenClientes);
@@ -249,7 +246,7 @@ public class InterfazBancoVirtual extends JFrame {
         gbcImagenSalir.insets = new Insets(30, 10, 10, 400);
         panel4.add(labelSalir, gbcImagenSalir);
 
-        JButton btnSalir = new JButton("Salir");
+        JButton btnSalir = new JButton("Cerrar sesión");
         btnSalir.setPreferredSize(new Dimension(180, 35));
         btnSalir.setFont(new Font("Arial", Font.BOLD, 15));
         btnSalir.addActionListener(e -> {
@@ -257,7 +254,7 @@ public class InterfazBancoVirtual extends JFrame {
                     "¿Estás seguro?", "Confirmación", JOptionPane.YES_NO_OPTION);
 
             if (respuesta == JOptionPane.YES_OPTION) {
-                System.exit(0);
+                InterfazBancoVirtual interfaz = new InterfazBancoVirtual();
             }
         });
         gbcBotonSalir.insets = new Insets(30, 10, 60, 400);
@@ -696,13 +693,19 @@ public class InterfazBancoVirtual extends JFrame {
         btnIngresarCliente.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(validarDatosIngresoCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
-                    if(controladorClientes.crearCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
-                        JOptionPane.showMessageDialog(ingresarClientePanel, "Cliente ingresado con éxito", "Inserción exitosa", JOptionPane.INFORMATION_MESSAGE);
+                Object valorSpinner = edadSpinner.getValue();
+                if (valorSpinner instanceof Integer) {
+                    if(validarDatosIngresoCliente(nombreField.getText(), apellidoField.getText(), (Integer) valorSpinner, emailField.getText(), rutField.getText(), fonoField.getText())){
+                        if(controladorClientes.crearCliente(nombreField.getText(), apellidoField.getText(), (Integer) edadSpinner.getValue(), emailField.getText(), rutField.getText(), fonoField.getText())){
+                            JOptionPane.showMessageDialog(ingresarClientePanel, "Cliente ingresado con éxito", "Inserción exitosa", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(ingresarClientePanel, "No se pudo agregar al cliente", "Inserción fallida", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
-                    else {
-                        JOptionPane.showMessageDialog(ingresarClientePanel, "No se pudo agregar al cliente", "Inserción fallida", JOptionPane.ERROR_MESSAGE);
-                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(ingresarClientePanel, "La edad ingresada no es válida", "Inserción fallida", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -1291,7 +1294,8 @@ public class InterfazBancoVirtual extends JFrame {
         btnActualizar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mostrarDatosCliente(datos, buscarClientePanel);
+                Object[] newDatos = controladorClientes.buscarCliente((String) datos[5]);
+                mostrarDatosCliente(newDatos, buscarClientePanel);
             }
         });
 

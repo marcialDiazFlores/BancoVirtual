@@ -78,7 +78,20 @@ public class ClienteDAO implements interfazClienteDAO
     public boolean agregarCliente(Cliente cliente) throws SQLException {
         try (Connection connection = conn.conectar()) {
 
+            if (cliente.getNombre() == null || cliente.getApellido() == null || cliente.getEmail() == null || cliente.getRut() == null || cliente.getFono() == null) {
+                // Si alguno de los campos es nulo, devuelve false
+                return false;
+            }
+
             if (verificarRutExistente(cliente.getRut())) {
+                return false;
+            }
+
+            if (verificarEmailExistente(cliente.getEmail())) {
+                return false;
+            }
+
+            if (verificarTelefonoExistente(cliente.getFono())) {
                 return false;
             }
 
@@ -127,6 +140,42 @@ public class ClienteDAO implements interfazClienteDAO
             }
         } catch (SQLException e) {
             throw new SQLException("Error al verificar el RUT existente", e);
+        }
+        return false;
+    }
+
+    public boolean verificarEmailExistente(String email) throws SQLException {
+        try (Connection connection = conn.conectar()) {
+            String query = "SELECT COUNT(*) FROM clientes WHERE email = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setString(1, email);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        int count = resultSet.getInt(1);
+                        return count > 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Error al verificar el email existente", e);
+        }
+        return false;
+    }
+
+    public boolean verificarTelefonoExistente(String email) throws SQLException {
+        try (Connection connection = conn.conectar()) {
+            String query = "SELECT COUNT(*) FROM clientes WHERE fono = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setString(1, email);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        int count = resultSet.getInt(1);
+                        return count > 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Error al verificar el teléfono existente", e);
         }
         return false;
     }

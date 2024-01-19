@@ -11,7 +11,7 @@ public class AdministradorDAO implements interfazAdministradorDAO {
     ConexionBDD conn = new ConexionBDD();
     public boolean validarLoginAdministrador(String rut, String contrasena) {
         try (Connection connection = conn.conectar()) {
-            String query = "SELECT * FROM administradores WHERE rut = ? AND contrasena = ?";
+            String query = "SELECT * FROM administradores WHERE rut = ? AND contrasena = encode(sha256(?::bytea), 'hex')";
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setString(1, rut);
                 preparedStatement.setString(2, contrasena);
