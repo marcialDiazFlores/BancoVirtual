@@ -35,7 +35,7 @@ public class TestsObtenerTodosLosClientes {
         List<Cliente> clientes = clienteDAO.obtenerTodosLosClientes();
 
         // Verifica que la cantidad de clientes sea la esperada
-        assertEquals(8, clientes.size()); // Ajusta según el número de clientes en tu base de datos
+        assertEquals(5, clientes.size()); // Ajusta según el número de clientes en tu base de datos
     }
 
     @Test
@@ -60,8 +60,8 @@ public class TestsObtenerTodosLosClientes {
         // Obtiene la lista de todos los clientes
         List<Cliente> clientes = clienteDAO.obtenerTodosLosClientes();
 
-        // Verifica que el apellido del cuarto cliente sea "Torres"
-        assertEquals(clientes.get(3).getApellido(), "Torres");
+        // Verifica que el apellido del cuarto cliente sea "Díaz"
+        assertEquals(clientes.get(3).getApellido(), "Díaz");
     }
 
     @Test
@@ -78,7 +78,7 @@ public class TestsObtenerTodosLosClientes {
         // Obtiene la lista de todos los clientes
         List<Cliente> clientes = clienteDAO.obtenerTodosLosClientes();
 
-        // Verifica que el teléfono del cuarto cliente sea "+56987654321"
-        assertEquals(clientes.get(3).getFono(), "+56987654321");
+        // Verifica que el teléfono del cuarto cliente sea "+56978030199"
+        assertEquals(clientes.get(3).getFono(), "+56978030199");
     }
 }

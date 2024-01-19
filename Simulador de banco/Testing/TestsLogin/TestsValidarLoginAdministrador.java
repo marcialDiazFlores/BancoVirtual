@@ -18,6 +18,7 @@ public class TestsValidarLoginAdministrador {
         assertTrue(resultado, "El login debería ser válido");
     }
 
+    @Test
     public void testValidarLoginAdministrador_CasoValido2() {
         String rut = "18.901.234-5";
         String contrasena = "Admin4";

@@ -20,21 +20,21 @@ public class TestsVerificarRutExistente {
 
     @Test
     public void testVerificarRutExistente_CasoExistente() throws SQLException {
-        String rutExistente = "19.453.671-2";
+        String rutExistente = "19.524.734-k";
         boolean resultado = clienteDAO.verificarRutExistente(rutExistente);
         assertTrue(resultado, "El RUT debería existir en la base de datos");
     }
 
     @Test
     public void testVerificarRutExistente_CasoExistente2() throws SQLException {
-        String rutExistente = "17.890.123-4";
+        String rutExistente = "11.887.234-5";
         boolean resultado = clienteDAO.verificarRutExistente(rutExistente);
         assertTrue(resultado, "El RUT debería existir en la base de datos");
     }
 
     @Test
     public void testVerificarRutExistente_CasoExistente3() throws SQLException {
-        String rutExistente = "15.276.984-8";
+        String rutExistente = "19.960.607-7";
         boolean resultado = clienteDAO.verificarRutExistente(rutExistente);
         assertTrue(resultado, "El RUT debería existir en la base de datos");
     }
@@ -46,6 +46,7 @@ public class TestsVerificarRutExistente {
         assertFalse(resultado, "El RUT no debería existir en la base de datos");
     }
 
+    @Test
     public void testVerificarRutExistente_CasoLetras() throws SQLException {
         String rutNoExistente = "99.99asd9.999asf-9"; // Rut con letras
         boolean resultado = clienteDAO.verificarRutExistente(rutNoExistente);

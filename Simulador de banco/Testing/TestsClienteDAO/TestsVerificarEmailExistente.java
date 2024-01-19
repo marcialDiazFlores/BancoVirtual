@@ -20,21 +20,21 @@ public class TestsVerificarEmailExistente {
 
     @Test
     public void testVerificarEmailExistente_CasoExistente() throws SQLException {
-        String emailExistente = "javier.diaz@yahoo.com";
+        String emailExistente = "marcial.diaz@acl.cl";
         boolean resultado = clienteDAO.verificarEmailExistente(emailExistente);
         assertTrue(resultado, "El email debería existir en la base de datos");
     }
 
     @Test
     public void testVerificarEmailExistente_CasoExistente2() throws SQLException {
-        String emailExistente = "carla.lopez@icloud.com";
+        String emailExistente = "vale.diaz@gmail.cl";
         boolean resultado = clienteDAO.verificarEmailExistente(emailExistente);
         assertTrue(resultado, "El email debería existir en la base de datos");
     }
 
     @Test
     public void testVerificarEmailExistente_CasoExistente3() throws SQLException {
-        String emailExistente = "maria.gutierrez@gmail.com";
+        String emailExistente = "javier.diaz@yahoo.com";
         boolean resultado = clienteDAO.verificarEmailExistente(emailExistente);
         assertTrue(resultado, "El email debería existir en la base de datos");
     }

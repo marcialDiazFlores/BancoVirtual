@@ -61,7 +61,7 @@ public class TestsAgregarCliente {
         // Intenta agregar el cliente
         boolean resultado = clienteDAO.agregarCliente(cliente);
 
-        // Verifica que la operación fue exitosa
+        // Verifica que la operación falló
         assertFalse(resultado);
     }
 
@@ -73,7 +73,7 @@ public class TestsAgregarCliente {
         // Intenta agregar el cliente
         boolean resultado = clienteDAO.agregarCliente(cliente);
 
-        // Verifica que la operación fue exitosa
+        // Verifica que la operación falló
         assertFalse(resultado);
     }
 }

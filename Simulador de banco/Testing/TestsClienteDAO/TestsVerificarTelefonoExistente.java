@@ -28,7 +28,7 @@ public class TestsVerificarTelefonoExistente {
 
     @Test
     public void testVerificarTelefonoExistente_CasoExistente2() throws SQLException {
-        String telefonoExistente = "+56987654321";
+        String telefonoExistente = "+56998765432";
         boolean resultado = clienteDAO.verificarTelefonoExistente(telefonoExistente);
         assertTrue(resultado, "El teléfono debería existir en la base de datos");
     }
