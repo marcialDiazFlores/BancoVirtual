@@ -28,6 +28,7 @@ public class InterfazBancoVirtual extends JFrame {
     private ControladorAdministradores controladorAdministradores;
 
     public InterfazBancoVirtual() {
+        getContentPane().removeAll();
         // Inicializar controladores
         controladorClientes = new ControladorClientes();
         controladorCuentasDeAhorro = new ControladorCuentasDeAhorro();
@@ -245,7 +246,7 @@ public class InterfazBancoVirtual extends JFrame {
         gbcImagenSalir.insets = new Insets(30, 10, 10, 400);
         panel4.add(labelSalir, gbcImagenSalir);
 
-        JButton btnSalir = new JButton("Salir");
+        JButton btnSalir = new JButton("Cerrar sesión");
         btnSalir.setPreferredSize(new Dimension(180, 35));
         btnSalir.setFont(new Font("Arial", Font.BOLD, 15));
         btnSalir.addActionListener(e -> {
@@ -253,7 +254,7 @@ public class InterfazBancoVirtual extends JFrame {
                     "¿Estás seguro?", "Confirmación", JOptionPane.YES_NO_OPTION);
 
             if (respuesta == JOptionPane.YES_OPTION) {
-                System.exit(0);
+                InterfazBancoVirtual interfaz = new InterfazBancoVirtual();
             }
         });
         gbcBotonSalir.insets = new Insets(30, 10, 60, 400);

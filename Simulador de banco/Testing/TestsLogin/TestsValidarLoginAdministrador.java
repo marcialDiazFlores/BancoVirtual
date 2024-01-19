@@ -12,16 +12,24 @@ public class TestsValidarLoginAdministrador {
 
     @Test
     public void testValidarLoginAdministrador_CasoValido() {
-        String rut = "16.789.012-3";
-        String contrasena = "Admin3";
+        String rut = "19.960.607-7";
+        String contrasena = "Admin1";
         boolean resultado = administradorDAO.validarLoginAdministrador(rut, contrasena);
         assertTrue(resultado, "El login debería ser válido");
     }
 
     @Test
     public void testValidarLoginAdministrador_CasoValido2() {
-        String rut = "18.901.234-5";
-        String contrasena = "Admin4";
+        String rut = "9.905.129-9";
+        String contrasena = "Admin2";
+        boolean resultado = administradorDAO.validarLoginAdministrador(rut, contrasena);
+        assertTrue(resultado, "El login debería ser válido");
+    }
+
+    @Test
+    public void testValidarLoginAdministrador_CasoValido3() {
+        String rut = "19.524.734-k";
+        String contrasena = "Admin3";
         boolean resultado = administradorDAO.validarLoginAdministrador(rut, contrasena);
         assertTrue(resultado, "El login debería ser válido");
     }

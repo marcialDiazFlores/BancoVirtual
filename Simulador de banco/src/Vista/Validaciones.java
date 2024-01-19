@@ -10,6 +10,18 @@ public class Validaciones {
     private static ControladorCuentasDeAhorro controladorCuentasDeAhorro;
     private static ControladorCuentasCorrientes controladorCuentasCorrientes;
 
+    private static int edadMinima = Integer.parseInt(System.getenv("edadMinima"));
+    private static int edadMaxima = Integer.parseInt(System.getenv("edadMaxima"));
+    private static int saldoMinimo = Integer.parseInt(System.getenv("saldoMinimo"));
+    private static int saldoMaximo = Integer.parseInt(System.getenv("saldoMaximo"));
+    private static int sobregiroMinimo = Integer.parseInt(System.getenv("sobregiroMinimo"));
+    private static int sobregiroMaximo = Integer.parseInt(System.getenv("sobregiroMaximo"));
+    private static int topeMinimoMinimo = Integer.parseInt(System.getenv("topeMinimoMinimo"));
+    private static int topeMinimoMaximo = Integer.parseInt(System.getenv("topeMinimoMaximo"));
+
+    private static int tasaInteresMinimo = Integer.parseInt(System.getenv("tasaInteresMinimo"));
+    private static int tasaInteresMaximo = Integer.parseInt(System.getenv("tasaInteresMaximo"));
+
     private static void mostrarMenu() {
         Scanner scanner = new Scanner(System.in);
 
@@ -723,7 +735,7 @@ public class Validaciones {
     }
 
     public static boolean validarEdad(int edad) {
-        return edad >= 18 && edad <= 105;
+        return edad >= edadMinima && edad <= edadMaxima;
     }
 
     public static boolean validarEmail(String email) {
@@ -771,17 +783,17 @@ public class Validaciones {
     }
 
     public static boolean validarSaldo(int saldo) {
-        return saldo >= 0 && saldo < 50000000;
+        return saldo >= saldoMinimo && saldo < saldoMaximo;
     }
     public static boolean validarTasaInteres(double tasaInteres) {
-        return tasaInteres > 3 && tasaInteres < 20;
+        return tasaInteres > tasaInteresMinimo && tasaInteres < tasaInteresMaximo;
     }
     public static boolean validarTopeMinimo(int topeMinimo) {
-        return topeMinimo >= 0 && topeMinimo <= 5000000;
+        return topeMinimo >= topeMinimoMinimo && topeMinimo <= topeMinimoMaximo;
     }
 
     public static boolean validarSobregiro(int sobregiro) {
-        return sobregiro > 0 && sobregiro < 2000000;
+        return sobregiro > sobregiroMinimo && sobregiro < sobregiroMaximo;
     }
 
     public static boolean validarContrasena(String contrasena) {
